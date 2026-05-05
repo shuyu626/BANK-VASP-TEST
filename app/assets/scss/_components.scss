@@ -1,0 +1,5 @@
+// 跨主題的共用元件主題覆寫
+// 目前所有 App* 元件皆透過 token (bg-brand / bg-surface-alt / border-border 等) 自動切換顏色
+// 三端僅以「顏色 / 邊框」做區分，不再針對個別主題改變按鈕形狀或 hover 動畫
+//
+// 若未來某主題需要特殊化（例如 bank 需要金色 focus ring），在此處補上即可

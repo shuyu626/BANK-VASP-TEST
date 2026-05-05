@@ -1,0 +1,59 @@
+// Shared SCSS mixins
+
+@mixin financial-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  th {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--color-surface-alt);
+    }
+  }
+}
+
+@mixin card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+@mixin number-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@mixin market-up {
+  color: var(--color-market-up);
+  background-color: var(--color-market-up-bg);
+}
+
+@mixin market-down {
+  color: var(--color-market-down);
+  background-color: var(--color-market-down-bg);
+}

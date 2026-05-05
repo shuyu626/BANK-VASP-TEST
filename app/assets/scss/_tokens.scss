@@ -1,0 +1,122 @@
+// Design tokens — color system for bank-vasp-demo
+// Core: #00403e (primary-900) + #00a19c (primary-500)
+// Three-end theming via [data-theme] attribute
+// Market colour convention via [data-market-colors] (default asian: red-up / green-down)
+
+:root {
+  // Primary palette — deep teal green
+  --color-primary-50:  #ebf9f8;
+  --color-primary-100: #cbf0ef;
+  --color-primary-200: #9be0de;
+  --color-primary-300: #5fcdc9;
+  --color-primary-400: #2db7b3;
+  --color-primary-500: #00a19c;
+  --color-primary-600: #008783;
+  --color-primary-700: #006e6a;
+  --color-primary-800: #005653;
+  --color-primary-900: #00403e;
+  --color-primary-950: #002826;
+
+  // Neutral palette — cool gray with teal undertone
+  --color-neutral-50:  #f7faf9;
+  --color-neutral-100: #eef2f2;
+  --color-neutral-200: #dde4e3;
+  --color-neutral-300: #c2cdcc;
+  --color-neutral-400: #9aaba9;
+  --color-neutral-500: #6b7d7b;
+  --color-neutral-600: #4a5c5a;
+  --color-neutral-700: #2a3c3a;
+  --color-neutral-800: #1a2b29;
+  --color-neutral-900: #101f1d;
+  --color-neutral-950: #0a1614;
+
+  // Gold accent — financial premium feel
+  --color-gold-100: #faf1dd;
+  --color-gold-400: #e0b04c;
+  --color-gold-500: #c9962d;
+  --color-gold-600: #a8801a;
+
+  // Semantic
+  --color-success: #0d9972;
+  --color-danger:  #c73838;
+  --color-warning: #d97706;
+  --color-info:    #0891b2;
+
+  // Market (default Taiwan convention: red up, green down)
+  --color-market-up:      #d93838;
+  --color-market-up-bg:   #fef1f1;
+  --color-market-down:    #11866f;
+  --color-market-down-bg: #ecf8f4;
+  --color-market-flat:    #6b7d7b;
+
+  // Surface / text (light default)
+  --color-bg:           var(--color-neutral-50);
+  --color-surface:      #ffffff;
+  --color-surface-alt:  var(--color-neutral-100);
+  --color-text:         var(--color-neutral-800);
+  --color-text-muted:   var(--color-neutral-500);
+  --color-border:       var(--color-neutral-200);
+  --color-border-strong:var(--color-neutral-300);
+  --color-brand:        var(--color-primary-700);
+
+  // Radii
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  // Shadows
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.08);
+  --shadow-glow: 0 0 0 3px rgb(0 161 156 / 0.15);
+
+  // Fonts
+  --font-sans:  'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif TC', Georgia, serif;
+  --font-mono:  'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+// Western convention override (green up, red down) — user preference
+[data-market-colors='western'] {
+  --color-market-up:      #11866f;
+  --color-market-up-bg:   #ecf8f4;
+  --color-market-down:    #d93838;
+  --color-market-down-bg: #fef1f1;
+}
+
+// Trader theme — dark, energetic, primary-500 brand
+[data-theme='trader'] {
+  color-scheme: dark;
+  --color-bg:          var(--color-neutral-950);
+  --color-surface:     var(--color-neutral-900);
+  --color-surface-alt: var(--color-neutral-800);
+  --color-text:        var(--color-neutral-100);
+  --color-text-muted:  var(--color-neutral-400);
+  --color-border:      var(--color-neutral-800);
+  --color-border-strong: var(--color-neutral-700);
+  --color-brand:       var(--color-primary-500);
+}
+
+// Admin theme — light, neutral professional, primary-700
+[data-theme='admin'] {
+  color-scheme: light;
+  --color-bg:          var(--color-neutral-50);
+  --color-surface:     #ffffff;
+  --color-surface-alt: var(--color-neutral-100);
+  --color-text:        var(--color-neutral-800);
+  --color-text-muted:  var(--color-neutral-500);
+  --color-border:      var(--color-neutral-200);
+  --color-brand:       var(--color-primary-700);
+}
+
+// Bank theme — light, conservative, primary-900 + gold accents, serif headings
+[data-theme='bank'] {
+  color-scheme: light;
+  --color-bg:          #ffffff;
+  --color-surface:     #ffffff;
+  --color-surface-alt: var(--color-neutral-50);
+  --color-text:        var(--color-neutral-900);
+  --color-text-muted:  var(--color-neutral-600);
+  --color-border:      var(--color-neutral-200);
+  --color-brand:       var(--color-primary-900);
+}

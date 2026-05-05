@@ -1,0 +1,28 @@
+@use 'mixins' as *;
+@use 'tokens';
+@use 'trader';
+@use 'admin';
+@use 'bank';
+@use 'components';
+
+// Global baseline
+html, body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+// Numeric content uses tabular figures
+.num {
+  @include number-tabular;
+}
+
+.up { color: var(--color-market-up); }
+.down { color: var(--color-market-down); }
+.flat { color: var(--color-market-flat); }
