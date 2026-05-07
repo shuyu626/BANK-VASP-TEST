@@ -1,0 +1,31 @@
+// Admin (exchange back office) theme — light neutral professional
+
+[data-theme='admin'] {
+  font-family: var(--font-sans);
+
+  .admin-sidebar {
+    background-color: var(--color-neutral-800);
+    color: var(--color-neutral-100);
+    min-height: 100dvh;
+  }
+
+  .admin-kpi {
+    border-left: 3px solid var(--color-primary-700);
+    padding: 1rem 1.25rem;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+  }
+
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    &--pending { background: var(--color-warning); color: white; opacity: 0.9; }
+    &--approved { background: var(--color-success); color: white; opacity: 0.9; }
+    &--rejected { background: var(--color-danger); color: white; opacity: 0.9; }
+  }
+}

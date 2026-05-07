@@ -1,0 +1,47 @@
+// Bank (bank back office) theme
+// 視覺差異僅來自 token：白底 + primary-900 brand + 金色點綴
+// 字體 / 圓角 / hover 行為與 admin / trader 一致
+
+@use 'mixins' as *;
+
+[data-theme='bank'] {
+  font-family: var(--font-sans);
+
+  // bank-heading 只強調顏色，不再覆寫字體與字距
+  h1, h2, h3, .bank-heading {
+    color: var(--color-primary-900);
+  }
+
+  // banner 用品牌色漸層（仍屬「顏色」差異）
+  .bank-banner {
+    background: linear-gradient(180deg, var(--color-primary-900) 0%, var(--color-primary-950) 100%);
+    color: #ffffff;
+    border-bottom: 2px solid var(--color-gold-500);
+  }
+
+  // 金色點綴（僅顏色 / 邊框）
+  .bank-gold-accent {
+    color: var(--color-gold-600);
+    border-color: var(--color-gold-500);
+  }
+
+  .bank-panel {
+    @include card;
+  }
+
+  // 統一徽章樣式：留下金邊與大寫，但字距與全站 tracking-wider (0.05em) 對齊
+  .bank-stamp {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--color-gold-500);
+    color: var(--color-gold-600);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+  }
+
+  .bank-table {
+    @include financial-table;
+  }
+}

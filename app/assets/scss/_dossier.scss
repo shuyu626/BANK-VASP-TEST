@@ -1,0 +1,456 @@
+// Trader settings/profile.vue 的「dossier」風格樣式集合。
+// 因 template 已拆為 4 個子元件、各 component 不帶 scoped style，
+// 樣式集中於此並在 main.scss `@use` 為 global，方便共用 .dossier__* class。
+
+.dossier {
+  --dossier-rule: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+  --dossier-fg: var(--color-text);
+  --dossier-fg-muted: var(--color-text-muted);
+  --dossier-gold: var(--color-gold-500);
+  --dossier-gold-soft: color-mix(in srgb, var(--color-gold-500) 18%, transparent);
+
+  position: relative;
+  font-family: var(--font-sans);
+  color: var(--dossier-fg);
+
+  // Subtle paper-grain backdrop, theme-aware
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--color-border) 25%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 25%, transparent) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: -1px -1px;
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  > * { position: relative; z-index: 1; }
+}
+
+// — Header —
+.dossier__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.dossier__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dossier__label {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1.4vw, 1.5rem);
+  letter-spacing: 0.18em;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.dossier__rule {
+  width: 1.5rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+  flex-shrink: 0;
+  &--grow { flex: 1; }
+}
+
+.dossier__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dossier__stamp {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border: 1.5px solid var(--color-gold-500);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  color: var(--color-gold-500);
+  background: color-mix(in srgb, var(--color-gold-500) 18%, transparent);
+  transform: rotate(-3deg);
+  user-select: none;
+  box-shadow: inset 0 0 0 2px transparent, inset 0 -1px 0 color-mix(in srgb, var(--color-gold-500) 35%, transparent);
+}
+
+// — Grid —
+.dossier__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+
+  @media (min-width: 880px) {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+// — Identity card —
+.dossier__id {
+  position: relative;
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--color-gold-500);
+    border-style: solid;
+    pointer-events: none;
+  }
+  &::before {
+    top: 8px; left: 8px;
+    border-width: 1px 0 0 1px;
+  }
+  &::after {
+    bottom: 8px; right: 8px;
+    border-width: 0 1px 1px 0;
+  }
+
+  @media (min-width: 880px) {
+    align-self: start;
+    position: sticky;
+    top: 5rem;
+  }
+}
+
+.dossier__avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  margin: 1rem 0 1.25rem;
+}
+
+.dossier__avatarChar {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-primary-400);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary-500) 20%, transparent),
+    color-mix(in srgb, var(--color-primary-700) 25%, transparent)
+  );
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.dossier__avatarRing {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+  pointer-events: none;
+  animation: dossier-spin 30s linear infinite;
+}
+
+@keyframes dossier-spin {
+  to { transform: rotate(360deg); }
+}
+
+.dossier__name {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.dossier__sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  word-break: break-all;
+  margin-bottom: 1.25rem;
+}
+
+.dossier__meta-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px dashed var(--color-border);
+  border-bottom: 1px dashed var(--color-border);
+  margin-bottom: 1.25rem;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  dd {
+    color: var(--color-text);
+    text-align: right;
+    word-break: break-all;
+  }
+}
+
+.dossier__age {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.dossier__ageNum {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  color: var(--color-text);
+  font-feature-settings: 'tnum';
+}
+
+.dossier__ageUnit {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+}
+
+// — Main column —
+.dossier__main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.dossier__panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.dossier__sectionHead {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.dossier__sectionNum {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-text-muted);
+}
+
+// — Verification grid —
+.dossier__verifGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.dossier__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &--tier {
+    grid-row: span 2;
+    align-items: flex-start;
+  }
+  &--wide { grid-column: 1 / -1; }
+}
+
+.dossier__cellLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+}
+
+.dossier__cellValue {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.dossier__cellSub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.12em;
+}
+
+.dossier__inlineStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dossier__statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 8%, transparent);
+}
+
+// — KYC tier stamp —
+.dossier__tierStamp {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border: 2px solid var(--color-gold-500);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-gold-500) 18%, transparent);
+  color: var(--color-gold-500);
+  transform: rotate(-2deg);
+  font-family: var(--font-mono);
+  user-select: none;
+
+  &[data-tier='tier0'] {
+    border-color: var(--color-text-muted);
+    color: var(--color-text-muted);
+    background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  }
+}
+
+.dossier__tierStampLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  border-right: 1px solid currentColor;
+  padding-right: 0.5rem;
+  opacity: 0.75;
+}
+
+.dossier__tierStampNum {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+// — Quick links —
+.dossier__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dossier__link {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0;
+  border-top: 1px dashed var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: padding-left 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    padding-left: 0.5rem;
+    color: var(--color-primary-400);
+
+    .dossier__linkArrow { transform: translate(2px, -2px); }
+    .dossier__linkIcon { color: var(--color-primary-400); }
+  }
+}
+
+.dossier__links li:first-child .dossier__link { border-top: none; }
+
+.dossier__linkIndex {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+}
+
+.dossier__linkIcon {
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.dossier__linkLabel {
+  font-size: 0.875rem;
+}
+
+.dossier__linkArrow {
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+
+// — Export —
+.dossier__exportTitle {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.dossier__exportHint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+// — Footer —
+.dossier__footer {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--color-border);
+}

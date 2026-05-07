@@ -1,0 +1,30 @@
+// Trader (exchange end-user) theme
+// 視覺差異僅來自 token：深色 surface + primary-500 brand
+// 元素形狀/字級/hover 行為與 admin / bank 一致
+
+@use 'mixins' as *;
+
+[data-theme='trader'] {
+  font-family: var(--font-sans);
+
+  .trader-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-brand);
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: opacity 0.15s ease;
+
+    &:hover { opacity: 0.9; }
+    &:disabled,
+    &[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  .trader-panel {
+    @include card;
+  }
+}
