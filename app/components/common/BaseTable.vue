@@ -14,24 +14,41 @@ const props = withDefaults(defineProps<{
    * - 與 empty 為 false（已有資料）時，table 上方覆蓋 spinner overlay
    */
   loading?: boolean
+  /** 錯誤訊息：若有值則優先於 empty 顯示錯誤狀態（含可選的重試按鈕） */
+  errorMessage?: string | null
   /** 表格內容是否使用等寬數字字級（搭配 .num utility class） */
   numeric?: boolean
   /** 包進 footer slot 時要不要顯示分隔線（預設有） */
   footerBordered?: boolean
+  /** 首次 loading + 尚無資料時要顯示的 skeleton 列數；0 = 沿用「載入中…」文字（預設 0） */
+  skeletonRows?: number
 }>(), {
   empty: false,
   panelClass: 'bg-surface border border-border rounded overflow-hidden',
   emptyText: '',
   loading: false,
+  errorMessage: null,
   numeric: false,
-  footerBordered: true
+  footerBordered: true,
+  skeletonRows: 0
 })
+
+const emit = defineEmits<{
+  retry: []
+}>()
 
 const { t } = useI18n()
 const finalEmpty = computed(() => props.emptyText || t('components.tableShell.defaultEmpty'))
 const loadingText = computed(() => t('components.tableShell.loading'))
+const errorTitle = computed(() => t('components.tableShell.errorTitle'))
+const retryText = computed(() => t('components.tableShell.errorRetry'))
 const slots = useSlots()
-const showOverlay = computed(() => props.loading && !props.empty)
+const hasError = computed(() => !!props.errorMessage)
+const showSkeleton = computed(() =>
+  props.loading && props.empty && !hasError.value && props.skeletonRows > 0
+)
+// 錯誤態優先；其次 empty；最後正常列表
+const showOverlay = computed(() => props.loading && !props.empty && !hasError.value)
 </script>
 
 <template>
@@ -42,7 +59,31 @@ const showOverlay = computed(() => props.loading && !props.empty)
           <slot name="head" />
         </thead>
         <tbody :class="{ num: numeric }">
-          <tr v-if="empty">
+          <tr v-if="hasError">
+            <td :colspan="colspan" class="px-4 py-10 text-center">
+              <div class="flex flex-col items-center gap-2 text-text-muted">
+                <Icon name="lucide:alert-triangle" size="20" class="text-danger" aria-hidden="true" />
+                <div class="text-sm font-medium text-text">{{ errorTitle }}</div>
+                <div class="text-xs">{{ errorMessage }}</div>
+                <button
+                  type="button"
+                  class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded border border-border text-xs hover:bg-surface-alt"
+                  @click="emit('retry')"
+                >
+                  <Icon name="lucide:refresh-cw" size="12" aria-hidden="true" />
+                  {{ retryText }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          <template v-else-if="showSkeleton">
+            <tr v-for="i in skeletonRows" :key="`sk-${i}`" class="border-b border-border last:border-0">
+              <td v-for="c in colspan" :key="`sk-${i}-${c}`" class="px-4 py-3">
+                <div class="h-3 rounded bg-surface-alt animate-pulse" :style="{ width: `${50 + ((i + c) * 7) % 40}%` }" />
+              </td>
+            </tr>
+          </template>
+          <tr v-else-if="empty">
             <td :colspan="colspan" class="px-4 py-10 text-center text-text-muted">
               {{ loading ? loadingText : finalEmpty }}
             </td>

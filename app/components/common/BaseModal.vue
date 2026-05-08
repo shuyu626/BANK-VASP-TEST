@@ -29,14 +29,86 @@ const widthClass = computed(() => ({
   lg: 'max-w-lg'
 }[props.width]))
 
-// ESC key close
+// ─── A11y：focus trap、initial focus、restore focus、Escape、scroll lock ───
+
+const dialogRef = ref<HTMLElement | null>(null)
+let previouslyFocused: HTMLElement | null = null
+const titleId = `modal-${Math.random().toString(36).slice(2, 8)}`
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',')
+
+function getFocusable(): HTMLElement[] {
+  if (!dialogRef.value) return []
+  return Array.from(dialogRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null)
+}
+
+function focusInitial() {
+  if (!import.meta.client || !dialogRef.value) return
+  const focusables = getFocusable()
+  const target = focusables[0] ?? dialogRef.value
+  // 用 setTimeout 等 DOM 完成 transition / Teleport 掛載
+  setTimeout(() => target.focus({ preventScroll: true }), 0)
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (!props.modelValue) return
+  if (e.key === 'Escape') {
+    e.stopPropagation()
+    close()
+    return
+  }
+  if (e.key !== 'Tab') return
+  const focusables = getFocusable()
+  if (focusables.length === 0) {
+    e.preventDefault()
+    dialogRef.value?.focus({ preventScroll: true })
+    return
+  }
+  const first = focusables[0]!
+  const last = focusables[focusables.length - 1]!
+  const active = document.activeElement as HTMLElement | null
+  if (e.shiftKey) {
+    if (active === first || !dialogRef.value?.contains(active)) {
+      e.preventDefault()
+      last.focus({ preventScroll: true })
+    }
+  } else {
+    if (active === last) {
+      e.preventDefault()
+      first.focus({ preventScroll: true })
+    }
+  }
+}
+
+watch(() => props.modelValue, (open) => {
+  if (!import.meta.client) return
+  if (open) {
+    previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    document.body.style.overflow = 'hidden'
+    nextTick(() => focusInitial())
+  } else {
+    document.body.style.overflow = ''
+    previouslyFocused?.focus({ preventScroll: true })
+    previouslyFocused = null
+  }
+}, { immediate: false })
+
 onMounted(() => {
   if (!import.meta.client) return
-  const handler = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && props.modelValue) close()
-  }
-  window.addEventListener('keydown', handler)
-  onBeforeUnmount(() => window.removeEventListener('keydown', handler))
+  window.addEventListener('keydown', onKeydown)
+})
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  window.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
 })
 </script>
 
@@ -48,11 +120,16 @@ onMounted(() => {
       @click.self="onBackdrop"
     >
       <div
-        class="bg-surface rounded-lg w-full p-6 shadow-lg"
+        ref="dialogRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="title || $slots.title ? titleId : undefined"
+        tabindex="-1"
+        class="bg-surface rounded-lg w-full p-6 shadow-lg outline-none"
         :class="widthClass"
         @click.stop
       >
-        <h3 v-if="title || $slots.title" class="text-lg font-semibold mb-3">
+        <h3 v-if="title || $slots.title" :id="titleId" class="text-lg font-semibold mb-3">
           <slot name="title">{{ title }}</slot>
         </h3>
         <slot />
