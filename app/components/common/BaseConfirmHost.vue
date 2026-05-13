@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // 元件位於 app.vue 層、在 NuxtLayout 之外，i18n plugin 找不到父 scope，明示 global 才不會噴
 // [intlify] Not found parent scope.
-const { t } = useI18n({ useScope: 'global' })
+const { t } = useI18n()
 const { pending, settle } = useConfirm()
 
 const open = computed({

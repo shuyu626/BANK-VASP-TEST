@@ -13,7 +13,7 @@ interface UseUnsavedChangesOptions {
 export function useUnsavedChanges(opts: UseUnsavedChangesOptions) {
   // Composable 不在元件 setup 的 i18n local scope 內，必須明示 global 才不會噴
   // [intlify] Not found parent scope. use the global scope.
-  const { t } = useI18n({ useScope: 'global' })
+  const { t } = useI18n()
   const { confirm } = useConfirm()
   const message = opts.message ?? (() => t('common.unsavedChanges.confirm'))
 

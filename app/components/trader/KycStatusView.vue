@@ -101,7 +101,7 @@ function badgeClass(status: KycStatus | null): string {
             <div class="text-sm text-text-muted mt-1">{{ t(KYC_TIER_LIMITS.tier2.copyKey) }}</div>
             <div class="text-xs text-text-muted mt-2">{{ t('trader.kyc.tier2RequirementsTitle', { requirements: t(KYC_TIER_LIMITS.tier2.requirementsKey) }) }}</div>
             <div class="mt-3">
-              <KycFileSlot
+              <TraderKycFileSlot
                 v-model="slotProof"
                 layout="inline"
                 :label="$t('trader.kyc.fileProof')"
