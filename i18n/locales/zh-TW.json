@@ -1155,7 +1155,15 @@
       "thBid": "買盤",
       "openLimits": "跨用戶 Open Limits（{count}）",
       "noOpen": "目前無未成交掛單",
-      "largeBadge": "大單"
+      "largeBadge": "大單",
+      "selectSymbol": "選擇交易對",
+      "quickSwitch": "快速切換",
+      "metricHigh24h": "24h 高",
+      "metricLow24h": "24h 低",
+      "metricVol24h": "24h 量",
+      "live": "Live",
+      "spread": "價差",
+      "loading": "載入訂單簿中…"
     },
     "fiat": {
       "title": "出入金審核",
@@ -1181,14 +1189,35 @@
       "operationFailed": "操作失敗"
     },
     "audit": {
-      "title": "稽核日誌（WORM）",
-      "subtitle": "唯讀、不可修改；支援角色／動作／資源 ID 篩選",
-      "filterAllRole": "全部角色",
-      "filterActionPlaceholder": "動作前綴（例：kyc. fiat.）",
-      "filterActorPlaceholder": "行為者 ID",
-      "filterResourcePlaceholder": "資源 ID",
-      "empty": "無符合條件的紀錄",
-      "logId": "Log ID:"
+      "stream": {
+        "title": "稽核日誌（串流）",
+        "subtitle": "WORM 唯讀；時間視窗虛擬捲動，預設最近 30 天",
+        "loadEarlier": "載入更早 30 天",
+        "errorNoData": "該日期無資料，最舊資料為 {oldest}",
+        "deepLinkMissing": "目前視窗找不到指定的 log",
+        "statsBar": "顯示 {shown} / 載入 {loaded} / 全庫 {total}",
+        "emptyFiltered": "無符合條件的紀錄",
+        "thRole": "角色",
+        "filterBar": {
+          "searchPlaceholder": "全文搜尋（actor / action / resource / metadata）",
+          "actorRoleAll": "全部角色",
+          "actionPlaceholder": "action 前綴（例：kyc. fiat.）",
+          "actorPlaceholder": "actor (exact)",
+          "resourcePlaceholder": "resource id (exact)",
+          "windowStartLabel": "起",
+          "windowEndLabel": "迄",
+          "jumpDateLabel": "跳到日期",
+          "jumpCta": "跳轉",
+          "resetCta": "重設",
+          "exportCsvCta": "匯出 CSV"
+        },
+        "detail": {
+          "title": "詳情",
+          "placeholder": "點選列表項目以查看詳情",
+          "copyIdCta": "複製 id",
+          "closeCta": "關閉"
+        }
+      }
     },
     "reports": {
       "title": "監管報表",

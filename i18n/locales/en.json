@@ -1155,7 +1155,15 @@
       "thBid": "Bids",
       "openLimits": "Cross-user open limits ({count})",
       "noOpen": "No open orders",
-      "largeBadge": "Large"
+      "largeBadge": "Large",
+      "selectSymbol": "Select pair",
+      "quickSwitch": "Quick switch",
+      "metricHigh24h": "24h High",
+      "metricLow24h": "24h Low",
+      "metricVol24h": "24h Vol",
+      "live": "Live",
+      "spread": "Spread",
+      "loading": "Loading orderbook…"
     },
     "fiat": {
       "title": "Fiat Approvals",
@@ -1181,14 +1189,35 @@
       "operationFailed": "Operation failed"
     },
     "audit": {
-      "title": "Audit Log (WORM)",
-      "subtitle": "Read-only, append-only; filter by role / action / resource ID.",
-      "filterAllRole": "All roles",
-      "filterActionPlaceholder": "Action prefix (e.g. kyc. fiat.)",
-      "filterActorPlaceholder": "Actor ID",
-      "filterResourcePlaceholder": "Resource ID",
-      "empty": "No matching records",
-      "logId": "Log ID:"
+      "stream": {
+        "title": "Audit Log (Stream)",
+        "subtitle": "WORM read-only; virtualized time-window scroll, last 30 days by default.",
+        "loadEarlier": "Load 30 days earlier",
+        "errorNoData": "No entries on that date. Oldest available: {oldest}.",
+        "deepLinkMissing": "Linked log not found in current window.",
+        "statsBar": "Shown {shown} / Loaded {loaded} / Total {total}",
+        "emptyFiltered": "No matching records",
+        "thRole": "Role",
+        "filterBar": {
+          "searchPlaceholder": "Full-text search (actor / action / resource / metadata)",
+          "actorRoleAll": "All roles",
+          "actionPlaceholder": "Action prefix (e.g. kyc. fiat.)",
+          "actorPlaceholder": "Actor (exact)",
+          "resourcePlaceholder": "Resource id (exact)",
+          "windowStartLabel": "From",
+          "windowEndLabel": "To",
+          "jumpDateLabel": "Jump to date",
+          "jumpCta": "Jump",
+          "resetCta": "Reset",
+          "exportCsvCta": "Export CSV"
+        },
+        "detail": {
+          "title": "Details",
+          "placeholder": "Select an entry to see details",
+          "copyIdCta": "Copy id",
+          "closeCta": "Close"
+        }
+      }
     },
     "reports": {
       "title": "Regulatory Reports",
