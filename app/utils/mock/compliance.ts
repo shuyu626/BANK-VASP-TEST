@@ -1,4 +1,5 @@
 import type { AmlAlert, AuditLog, CtrReport, SarReport } from '~~/shared/types'
+import { generateAuditSeed } from './audit-seed'
 
 export const mockAmlAlerts: AmlAlert[] = [
   {
@@ -26,12 +27,19 @@ export const mockAmlAlerts: AmlAlert[] = [
   }
 ]
 
-export const mockAuditLogs: AuditLog[] = [
+// 五筆人工 curated 的代表性 entries — 對應其他 mock 的 cross-reference（aml_001/002, kyc_001, fd_0057）
+const handCuratedAuditLogs: AuditLog[] = [
   { id: 'log_0001', actor: 'u_001',        actorRole: 'user',       action: 'auth.login',            resourceType: 'session', resourceId: 'sess_a', metadata: {}, ipAddress: '203.0.***.42',  timestamp: '2026-04-23T00:15:00Z' },
   { id: 'log_0002', actor: 'admin_01',     actorRole: 'admin',      action: 'kyc.approve',           resourceType: 'kyc',     resourceId: 'kyc_001', metadata: { tier: 'tier2' }, ipAddress: '10.0.1.5', timestamp: '2026-02-14T15:40:00Z' },
   { id: 'log_0003', actor: 'system',       actorRole: 'system',     action: 'aml.alert.trigger',     resourceType: 'aml',     resourceId: 'aml_001', metadata: { type: 'large_amount' }, ipAddress: null, timestamp: '2026-04-22T22:15:00Z' },
   { id: 'log_0004', actor: 'compliance_01',actorRole: 'compliance', action: 'aml.alert.resolve',     resourceType: 'aml',     resourceId: 'aml_002', metadata: { resolution: 'frozen_account' }, ipAddress: '10.0.1.8', timestamp: '2026-04-19T02:30:00Z' },
   { id: 'log_0005', actor: 'bank_teller_3',actorRole: 'bank',       action: 'fiat.deposit.confirm',  resourceType: 'deposit', resourceId: 'fd_0057', metadata: { amount: 1500000 }, ipAddress: '10.50.2.1', timestamp: '2026-04-22T22:10:00Z' }
+]
+
+const SEED_NOW = new Date('2026-05-08T12:00:00Z').getTime()
+export const mockAuditLogs: AuditLog[] = [
+  ...handCuratedAuditLogs,
+  ...generateAuditSeed({ count: 100000, now: SEED_NOW })
 ]
 
 export const mockCtrReports: CtrReport[] = [

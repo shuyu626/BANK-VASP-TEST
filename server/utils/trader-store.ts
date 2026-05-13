@@ -11,6 +11,7 @@ import {
   mockUsers, mockKycRecords,
   mockTrustAccounts, mockBankAccounts, mockHoldings
 } from '~~/app/utils/mock/users'
+import { mockAuditLogs } from '~~/app/utils/mock/compliance'
 
 // In-memory mock-backend state. Lives for the Nitro process lifetime.
 // Wiped on every `npm run build` / server restart — documented in design.md D3.
@@ -77,6 +78,8 @@ function ensureSeeded() {
     list.push({ ...h })
     holdings.set(h.userId, list)
   }
+  // Seed audit log from compliance mocks (handCurated 5 + generated 100k).
+  for (const log of mockAuditLogs) auditLog.push(log)
 }
 
 // ─── Time helpers ────────────────────────────────────────────────
