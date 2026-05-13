@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type {
-  AmlAlert, AuditLog, User, FiatDeposit, FiatWithdrawal,
+  AmlAlert, User, FiatDeposit, FiatWithdrawal,
   CtrReport, SarReport, OrderBookSnapshot, Order
 } from '~~/shared/types'
 import type { ResolveAlertInput, RejectWithdrawalInput, HoldDepositInput } from '~~/shared/types/admin'
@@ -18,7 +18,6 @@ interface OrderbookView { symbol: string; book: OrderBookSnapshot; openOrders: A
 
 export const useAdminReviewsStore = defineStore('admin-reviews', () => {
   const alerts = ref<AlertRow[]>([])
-  const auditEntries = ref<AuditLog[]>([])
   const ctrs = ref<ReportRow<CtrReport>[]>([])
   const sars = ref<ReportRow<SarReport>[]>([])
   const deposits = ref<DepositRow[]>([])
@@ -39,15 +38,6 @@ export const useAdminReviewsStore = defineStore('admin-reviews', () => {
 
   async function resolveAlert(id: string, input: ResolveAlertInput) {
     await $fetch(`/api/admin/risk/alerts/${id}/resolve`, { method: 'POST', body: input, headers: ssrCookieHeaders() })
-  }
-
-  async function loadAudit(params: Record<string, string> = {}) {
-    loading.value = true
-    error.value = null
-    try {
-      const res = await $fetch<{ entries: AuditLog[]; totalInLog: number }>('/api/admin/audit', { query: params, headers: ssrCookieHeaders() })
-      auditEntries.value = res.entries
-    } catch (err: unknown) { error.value = extractErrorMessage(err) } finally { loading.value = false }
   }
 
   async function loadReports() {
@@ -111,8 +101,8 @@ export const useAdminReviewsStore = defineStore('admin-reviews', () => {
   }
 
   return {
-    alerts, auditEntries, ctrs, sars, deposits, withdrawals, orderbook, loading, error,
-    loadAlerts, resolveAlert, loadAudit, loadReports, markReport,
+    alerts, ctrs, sars, deposits, withdrawals, orderbook, loading, error,
+    loadAlerts, resolveAlert, loadReports, markReport,
     loadDeposits, loadWithdrawals, rejectWithdrawal, holdDeposit, releaseDeposit, loadOrderbook
   }
 })
