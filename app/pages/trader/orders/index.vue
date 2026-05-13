@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useOrdersStore } from '~/stores/orders'
+import type { TableColumn } from '~/components/common/BaseTable.vue'
+import type { Order } from '~~/shared/types'
 
 definePageMeta({ layout: 'trader' })
 const { t } = useI18n()
@@ -20,11 +22,23 @@ const tabOptions = computed<{ value: Tab; label: string }[]>(() => [
   { value: 'history', label: t('trader.orders.tab.history') }
 ])
 
-const filtered = computed(() => {
+const filtered = computed<Order[]>(() => {
   if (tab.value === 'open') return list.value.filter(o => o.status === 'open' || o.status === 'partial')
   if (tab.value === 'history') return list.value.filter(o => ['filled', 'cancelled', 'rejected'].includes(o.status))
   return list.value
 })
+
+const columns = computed<TableColumn[]>(() => [
+  { key: 'createdAt', label: t('common.label.time') },
+  { key: 'symbol', label: t('common.label.symbol') },
+  { key: 'side', label: t('common.label.side') },
+  { key: 'type', label: t('trader.orders.th.type') },
+  { key: 'price', label: t('common.label.price'), align: 'right' },
+  { key: 'quantity', label: t('common.label.quantity'), align: 'right' },
+  { key: 'filledQty', label: t('common.label.filledQty'), align: 'right' },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'actions', label: t('common.label.action'), align: 'right' }
+])
 
 async function onCancel(id: string) {
   try {
@@ -74,53 +88,54 @@ const emptyText = computed(() =>
     </div>
 
     <BaseTable
-      :colspan="9"
-      :empty="filtered.length === 0"
+      :columns="columns"
+      :items="filtered"
+      row-key="id"
+      paginated
+      :default-page-size="20"
+      :page-size-options="[10, 20, 50, 100]"
       :empty-text="emptyText"
       panel-class="trader-panel overflow-hidden"
       numeric
     >
-      <template #head>
-        <tr class="text-xs text-text-muted border-b border-border">
-          <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.time') }}</th>
-          <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.symbol') }}</th>
-          <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.side') }}</th>
-          <th class="text-left px-4 py-3 font-medium">{{ $t('trader.orders.th.type') }}</th>
-          <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.price') }}</th>
-          <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.quantity') }}</th>
-          <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.filledQty') }}</th>
-          <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.status') }}</th>
-          <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
-        </tr>
+      <template #cell-createdAt="{ row }">
+        <span class="text-text-muted">{{ fmtDt(row.createdAt) }}</span>
       </template>
-      <tr v-for="o in filtered" :key="o.id" class="border-b border-border last:border-0">
-        <td class="px-4 py-3 text-text-muted">{{ fmtDt(o.createdAt) }}</td>
-        <td class="px-4 py-3 font-medium">{{ o.symbol }}</td>
-        <td class="px-4 py-3" :class="o.side === 'buy' ? 'text-market-down' : 'text-market-up'">
-          {{ o.side === 'buy' ? $t('side.buy') : $t('side.sell') }}
-        </td>
-        <td class="px-4 py-3 text-text-muted">{{ o.type }}</td>
-        <td class="px-4 py-3 text-right">{{ o.price === null ? '—' : fmtPrice(o.price) }}</td>
-        <td class="px-4 py-3 text-right">{{ fmtQty(o.quantity) }}</td>
-        <td class="px-4 py-3 text-right text-text-muted">{{ fmtQty(o.filledQty) }}</td>
-        <td class="px-4 py-3">
-          <BaseBadge :variant="orderStatusVariant(o.status)" size="sm" :solid="false">
-            {{ o.status }}
-          </BaseBadge>
-        </td>
-        <td class="px-4 py-3 text-right">
-          <BaseButton
-            v-if="o.status === 'open' || o.status === 'partial'"
-            variant="secondary"
-            size="sm"
-            class="!text-danger"
-            @click="onCancel(o.id)"
-          >
-            {{ $t('trader.orders.cancelCta') }}
-          </BaseButton>
-          <span v-else class="text-text-muted text-xs">—</span>
-        </td>
-      </tr>
+      <template #cell-symbol="{ row }">
+        <span class="font-medium">{{ row.symbol }}</span>
+      </template>
+      <template #cell-side="{ row }">
+        <span :class="row.side === 'buy' ? 'text-market-down' : 'text-market-up'">
+          {{ row.side === 'buy' ? $t('side.buy') : $t('side.sell') }}
+        </span>
+      </template>
+      <template #cell-type="{ row }">
+        <span class="text-text-muted">{{ row.type }}</span>
+      </template>
+      <template #cell-price="{ row }">
+        {{ row.price === null ? '—' : fmtPrice(row.price) }}
+      </template>
+      <template #cell-quantity="{ row }">{{ fmtQty(row.quantity) }}</template>
+      <template #cell-filledQty="{ row }">
+        <span class="text-text-muted">{{ fmtQty(row.filledQty) }}</span>
+      </template>
+      <template #cell-status="{ row }">
+        <BaseBadge :variant="orderStatusVariant(row.status)" size="sm" :solid="false">
+          {{ row.status }}
+        </BaseBadge>
+      </template>
+      <template #cell-actions="{ row }">
+        <BaseButton
+          v-if="row.status === 'open' || row.status === 'partial'"
+          variant="secondary"
+          size="sm"
+          class="!text-danger"
+          @click="onCancel(row.id)"
+        >
+          {{ $t('trader.orders.cancelCta') }}
+        </BaseButton>
+        <span v-else class="text-text-muted text-xs">—</span>
+      </template>
     </BaseTable>
   </div>
 </template>
