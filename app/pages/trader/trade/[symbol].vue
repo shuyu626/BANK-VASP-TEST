@@ -304,9 +304,9 @@ watch(() => orders.orders.length, () => { /* no-op keep reactive */ })
 
             <!-- MA legend when active -->
             <div v-if="showMa" class="ml-auto flex items-center gap-3 text-[10px] num">
-              <span style="color:#e0b04c">MA7</span>
-              <span style="color:#2db7b3">MA25</span>
-              <span style="color:#9aaba9">MA99</span>
+              <span class="text-gold-400">MA7</span>
+              <span class="text-primary-400">MA25</span>
+              <span class="text-neutral-400">MA99</span>
             </div>
           </div>
           <div class="p-2">

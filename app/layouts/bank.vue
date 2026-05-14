@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div class="flex items-center gap-2 sm:gap-4 text-sm shrink-0">
-          <span class="hidden sm:inline bank-stamp" style="border-color: var(--color-gold-400); color: var(--color-gold-400);">{{ $t('bank.demoStamp') }}</span>
+          <span class="hidden sm:inline bank-stamp bank-stamp--light">{{ $t('bank.demoStamp') }}</span>
           <BaseLangSwitch />
           <NuxtLink to="/" class="hidden sm:inline text-neutral-300 hover:text-white whitespace-nowrap">{{ $t('nav.backToHub') }}</NuxtLink>
         </div>
@@ -102,7 +102,7 @@ onBeforeUnmount(() => {
               </NuxtLink>
             </nav>
             <div class="px-4 py-3 border-t border-white/15 flex items-center justify-between gap-2">
-              <span class="bank-stamp" style="border-color: var(--color-gold-400); color: var(--color-gold-400);">{{ $t('bank.demoStamp') }}</span>
+              <span class="bank-stamp bank-stamp--light">{{ $t('bank.demoStamp') }}</span>
               <NuxtLink to="/" class="text-xs text-neutral-300 hover:text-white">{{ $t('nav.backToHub') }}</NuxtLink>
             </div>
           </aside>

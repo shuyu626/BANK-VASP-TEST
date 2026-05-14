@@ -44,8 +44,8 @@ function onNotifChange(k: 'email' | 'inApp', v: boolean) {
         >
           <div class="font-semibold mb-2">{{ $t('trader.settings.preferences.marketColorsAsian') }}</div>
           <div class="flex gap-2 text-xs">
-            <span class="px-2 py-1 rounded" style="background:#d93838;color:white;">+ ↑</span>
-            <span class="px-2 py-1 rounded" style="background:#11866f;color:white;">− ↓</span>
+            <span class="px-2 py-1 rounded market-swatch-red">+ ↑</span>
+            <span class="px-2 py-1 rounded market-swatch-green">− ↓</span>
           </div>
         </button>
         <button
@@ -56,8 +56,8 @@ function onNotifChange(k: 'email' | 'inApp', v: boolean) {
         >
           <div class="font-semibold mb-2">{{ $t('trader.settings.preferences.marketColorsWestern') }}</div>
           <div class="flex gap-2 text-xs">
-            <span class="px-2 py-1 rounded" style="background:#11866f;color:white;">+ ↑</span>
-            <span class="px-2 py-1 rounded" style="background:#d93838;color:white;">− ↓</span>
+            <span class="px-2 py-1 rounded market-swatch-green">+ ↑</span>
+            <span class="px-2 py-1 rounded market-swatch-red">− ↓</span>
           </div>
         </button>
       </div>

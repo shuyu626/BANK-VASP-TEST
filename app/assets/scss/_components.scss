@@ -3,3 +3,16 @@
 // 三端僅以「顏色 / 邊框」做區分，不再針對個別主題改變按鈕形狀或 hover 動畫
 //
 // 若未來某主題需要特殊化（例如 bank 需要金色 focus ring），在此處補上即可
+
+// Fixed-colour market scheme preview swatches.
+// 不可使用 market-up / market-down token，因為這兩個 token 會隨 [data-market-colors]
+// 翻轉。設定頁的 preview swatch 必須維持固定顏色（給使用者選擇前的對照），所以這裡
+// 直接寫死 hex。CSP-safe：在 SCSS 檔案內、由 'self' 來源載入。
+.market-swatch-red {
+  background-color: #d93838;
+  color: #fff;
+}
+.market-swatch-green {
+  background-color: #11866f;
+  color: #fff;
+}

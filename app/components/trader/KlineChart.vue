@@ -297,9 +297,9 @@ function fmtVol(n: number | undefined) {
         <span class="ml-1">C <span :class="hoverData.close && hoverData.open && hoverData.close >= hoverData.open ? 'text-market-up' : 'text-market-down'">{{ fmtNum(hoverData.close) }}</span></span>
       </template>
       <span v-if="hoverData.volume !== undefined" class="ml-2">Vol <span class="text-text">{{ fmtVol(hoverData.volume) }}</span></span>
-      <span v-if="hoverData.ma7 !== undefined" class="ml-3" style="color:#e0b04c">MA7 {{ fmtNum(hoverData.ma7) }}</span>
-      <span v-if="hoverData.ma25 !== undefined" class="ml-2" style="color:#2db7b3">MA25 {{ fmtNum(hoverData.ma25) }}</span>
-      <span v-if="hoverData.ma99 !== undefined" class="ml-2" style="color:#9aaba9">MA99 {{ fmtNum(hoverData.ma99) }}</span>
+      <span v-if="hoverData.ma7 !== undefined" class="ml-3 text-gold-400">MA7 {{ fmtNum(hoverData.ma7) }}</span>
+      <span v-if="hoverData.ma25 !== undefined" class="ml-2 text-primary-400">MA25 {{ fmtNum(hoverData.ma25) }}</span>
+      <span v-if="hoverData.ma99 !== undefined" class="ml-2 text-neutral-400">MA99 {{ fmtNum(hoverData.ma99) }}</span>
     </div>
 
     <!-- Fullscreen toggle -->

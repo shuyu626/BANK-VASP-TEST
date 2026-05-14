@@ -121,8 +121,7 @@ const isMobileOverlayOpen = computed(() => stream.selectedId.value !== null)
         <div
           v-else
           ref="parentRef"
-          class="overflow-auto"
-          style="height: calc(100vh - 360px); min-height: 400px;"
+          class="overflow-auto h-[calc(100vh-360px)] min-h-[400px]"
         >
           <div
             :style="{

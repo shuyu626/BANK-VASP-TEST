@@ -39,6 +39,12 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     border-radius: var(--radius-sm);
+
+    // 用於 bank layout header / drawer 等深底背景，需要較亮的金色
+    &--light {
+      border-color: var(--color-gold-400);
+      color: var(--color-gold-400);
+    }
   }
 
   .bank-table {

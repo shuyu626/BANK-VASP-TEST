@@ -110,8 +110,7 @@ const otherDestinations = computed(() =>
             <!-- Status code block -->
             <div class="flex flex-col">
               <div
-                class="font-mono font-bold leading-none tracking-tight text-primary-700 select-none"
-                style="font-size: clamp(5rem, 14vw, 9rem);"
+                class="font-mono font-bold leading-none tracking-tight text-primary-700 select-none text-[clamp(5rem,14vw,9rem)]"
               >
                 {{ status }}
               </div>

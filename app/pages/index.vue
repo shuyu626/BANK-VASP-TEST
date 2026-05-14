@@ -8,8 +8,18 @@ interface EndpointCard {
   id: 'trader' | 'admin' | 'bank'
   subtitle: string
   to: string
-  accent: string
   tagline: string
+}
+
+const ACCENT_BG: Record<EndpointCard['id'], string> = {
+  trader: 'bg-primary-500',
+  admin:  'bg-primary-700',
+  bank:   'bg-primary-900'
+}
+const ACCENT_TEXT: Record<EndpointCard['id'], string> = {
+  trader: 'text-primary-500',
+  admin:  'text-primary-700',
+  bank:   'text-primary-900'
 }
 
 const endpoints = computed<EndpointCard[]>(() => [
@@ -17,21 +27,18 @@ const endpoints = computed<EndpointCard[]>(() => [
     id: 'trader',
     subtitle: 'Trader — End User',
     to: '/trader',
-    accent: '#00a19c',
     tagline: 'Dark · Energetic · Real-time'
   },
   {
     id: 'admin',
     subtitle: 'Admin — Exchange Ops & Compliance',
     to: '/admin',
-    accent: '#006e6a',
     tagline: 'Light · Neutral · Professional'
   },
   {
     id: 'bank',
     subtitle: 'Bank Back Office',
     to: '/bank',
-    accent: '#00403e',
     tagline: 'Conservative · Serif · Auditable'
   }
 ])
@@ -62,12 +69,12 @@ const endpoints = computed<EndpointCard[]>(() => [
         :to="ep.to"
         class="group relative bg-surface border border-border rounded-lg p-6 hover:shadow-lg transition hover:-translate-y-0.5"
       >
-        <div class="absolute inset-x-0 top-0 h-1 rounded-t-lg" :style="{ backgroundColor: ep.accent }" />
+        <div class="absolute inset-x-0 top-0 h-1 rounded-t-lg" :class="ACCENT_BG[ep.id]" />
 
         <div class="text-xs tracking-widest uppercase text-text-muted mb-2">
           {{ ep.subtitle }}
         </div>
-        <h2 class="text-xl font-bold mb-3" :style="{ color: ep.accent }">
+        <h2 class="text-xl font-bold mb-3" :class="ACCENT_TEXT[ep.id]">
           {{ $t(`hub.${ep.id}.title`) }}
         </h2>
         <p class="text-sm text-text leading-relaxed mb-6">
@@ -77,7 +84,7 @@ const endpoints = computed<EndpointCard[]>(() => [
           <span class="text-[11px] tracking-wider text-text-muted uppercase">
             {{ ep.tagline }}
           </span>
-          <span class="text-sm font-medium group-hover:translate-x-1 transition" :style="{ color: ep.accent }">
+          <span class="text-sm font-medium group-hover:translate-x-1 transition" :class="ACCENT_TEXT[ep.id]">
             {{ $t(`hub.${ep.id}.cta`) }} →
           </span>
         </div>
@@ -90,12 +97,12 @@ const endpoints = computed<EndpointCard[]>(() => [
         <li>{{ $t('hub.aboutBullets.law') }}</li>
         <li>{{ $t('hub.aboutBullets.mock') }}</li>
         <li>
-          <i18n-t keypath="hub.aboutBullets.stack" tag="span">
+          <i18n-t keypath="hub.aboutBullets.stack" tag="span" scope="global">
             <template #code><code class="bg-surface px-1 rounded text-xs">data-theme</code></template>
           </i18n-t>
         </li>
         <li>
-          <i18n-t keypath="hub.aboutBullets.color" tag="span">
+          <i18n-t keypath="hub.aboutBullets.color" tag="span" scope="global">
             <template #primary><code class="bg-surface px-1 rounded text-xs">#00403e</code></template>
             <template #accent><code class="bg-surface px-1 rounded text-xs">#00a19c</code></template>
           </i18n-t>
