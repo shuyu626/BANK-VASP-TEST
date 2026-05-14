@@ -30,9 +30,11 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.107",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@vue/test-utils": "^2.4.9",
     "happy-dom": "^20.9.0",
+    "nuxt-security": "^2.5.1",
     "sass-embedded": "^1.85.0",
     "vitest": "^4.1.5",
     "vue-tsc": "^2.2.8"
