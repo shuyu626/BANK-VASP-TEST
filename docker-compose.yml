@@ -1,0 +1,34 @@
+services:
+  nuxt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: bank-vasp-nuxt
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - bank-vasp-net
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    container_name: bank-vasp-nginx
+    depends_on:
+      - nuxt
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - bank-vasp-net
+
+networks:
+  bank-vasp-net:
+    driver: bridge
