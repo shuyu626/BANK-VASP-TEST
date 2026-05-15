@@ -54,7 +54,9 @@ async function initChart() {
   chart = lw.createChart(chartEl.value, {
     width: chartEl.value.clientWidth,
     height: props.height ?? 420,
-    layout: { background: { color: 'transparent' }, textColor: '#9aaba9', fontSize: 11 },
+    // attributionLogo: false — 預設 logo 會用 createElement('style') 注入無 nonce <style> 撞 CSP；
+    // Apache-2.0 歸屬改由下方 template 的 link 滿足。
+    layout: { background: { color: 'transparent' }, textColor: '#9aaba9', fontSize: 11, attributionLogo: false },
     grid: {
       vertLines: { color: 'rgba(255,255,255,0.04)' },
       horzLines: { color: 'rgba(255,255,255,0.04)' }
@@ -312,5 +314,15 @@ function fmtVol(n: number | undefined) {
     </button>
 
     <div ref="chartEl" class="w-full" :style="{ height: chartHeightStyle }" />
+
+    <!-- Apache-2.0 attribution for lightweight-charts (replaces disabled attributionLogo) -->
+    <a
+      href="https://www.tradingview.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="absolute bottom-1 right-2 z-10 text-[10px] leading-none text-text-muted/60 hover:text-text-muted no-underline"
+    >
+      Charting by TradingView
+    </a>
   </div>
 </template>
