@@ -155,6 +155,15 @@ export default defineNuxtConfig({
     }
   },
 
+  // 這幾個套件只在懶載入的 CSR 路由用到（KlineChart / 虛擬列表 / schema），
+  // dev server 啟動時掃不到，首次進頁才被 Vite 發現 → 即時重打包 + full reload，
+  // 造成「卡頓後自己重新整理」。預先宣告讓 Vite 啟動時就一次打包好。
+  vite: {
+    optimizeDeps: {
+      include: ['lightweight-charts', 'zod', '@tanstack/vue-virtual']
+    }
+  },
+
   css: [
     '~/assets/scss/main.scss'
   ],
