@@ -2,7 +2,7 @@
 import type { ToastType } from '~/composables/useToast'
 
 const { toasts, dismiss } = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'global' })
 
 const variantClass: Record<ToastType, string> = {
   success: 'bg-success text-white',
