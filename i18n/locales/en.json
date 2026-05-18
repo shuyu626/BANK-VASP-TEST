@@ -528,6 +528,7 @@
     "settings": {
       "headTitle": "TaiEx — Settings",
       "title": "Settings",
+      "subtitle": "Manage your account, security and trading preferences",
       "tab": {
         "profile": "Profile",
         "security": "Security",

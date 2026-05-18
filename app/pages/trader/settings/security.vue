@@ -133,13 +133,24 @@ function loginMethod(metadata: Record<string, unknown>): string {
 
     <!-- 2FA -->
     <section class="trader-panel p-6">
-      <h2 class="text-lg font-semibold mb-1">{{ $t('trader.settings.security.totpTitle') }}</h2>
-      <p class="text-sm text-text-muted mb-4">
-        <span class="font-semibold" :class="twoFaEnabled ? 'text-success' : 'text-warning'">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold mb-1">{{ $t('trader.settings.security.totpTitle') }}</h2>
+        <span
+          class="inline-flex items-center gap-1.5 font-mono text-[0.7rem] tracking-[0.18em] uppercase px-2.5 py-1 rounded-sm border"
+          :class="twoFaEnabled
+            ? 'border-success/50 text-success bg-success/10'
+            : 'border-warning/50 text-warning bg-warning/10'"
+        >
+          <span
+            class="w-1.5 h-1.5 rounded-full"
+            :class="twoFaEnabled ? 'bg-success' : 'bg-warning'"
+            aria-hidden="true"
+          />
           {{ twoFaEnabled ? $t('trader.settings.security.totpEnabled') : $t('trader.settings.security.totpDisabled') }}
         </span>
-      </p>
-
+      </div>
+      
+          
       <div v-if="!twoFaEnabled" class="bg-surface-alt border border-border rounded-md p-4 mb-4 text-xs text-text-muted">
         <div class="font-mono mb-2">{{ $t('trader.settings.security.mockTotpLabel') }} <span class="text-primary-400">DEMO-SECRET</span></div>
         <div>{{ $t('trader.settings.security.totpHint') }}</div>

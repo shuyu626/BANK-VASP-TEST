@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { useSettingsStore } from '~/stores/settings'
 import type { ApiKeyPermission } from '~~/shared/types'
+import type { TableColumn } from '~/components/common/BaseTable.vue'
 
 const { t } = useI18n()
 useHead(() => ({ title: t('trader.settings.headTitle') }))
@@ -71,6 +72,18 @@ function extract(e: unknown): string {
   return t('trader.settings.apiKeys.errorDefault')
 }
 function fmtDtLocal(iso: string) { return iso.slice(0, 19).replace('T', ' ') }
+
+function onModalToggle(open: boolean) {
+  if (!open) settings.dismissCreated()
+}
+
+const apiColumns = computed<TableColumn[]>(() => [
+  { key: 'label', label: t('trader.settings.apiKeys.thLabel') },
+  { key: 'id', label: t('trader.settings.apiKeys.thKeyId') },
+  { key: 'permissions', label: t('trader.settings.apiKeys.thPermissions') },
+  { key: 'createdAt', label: t('trader.settings.apiKeys.thCreatedAt') },
+  { key: 'actions', label: t('common.label.action'), align: 'right' }
+])
 </script>
 
 <template>
@@ -103,73 +116,71 @@ function fmtDtLocal(iso: string) { return iso.slice(0, 19).replace('T', ' ') }
         </BaseButton>
       </form>
     </section>
-
-    <section>
-      <h2 class="text-lg font-semibold mb-3">{{ $t('trader.settings.apiKeys.title') }}</h2>
       <div class="trader-panel overflow-x-auto">
-        <table class="w-full text-sm min-w-[640px]">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.settings.apiKeys.thLabel') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.settings.apiKeys.thKeyId') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.settings.apiKeys.thPermissions') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.settings.apiKeys.thCreatedAt') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
-            </tr>
-          </thead>
-          <tbody class="num">
-            <tr v-if="apiKeys.length === 0">
-              <td colspan="5" class="px-4 py-10 text-center text-text-muted">{{ $t('trader.settings.apiKeys.noKeys') }}</td>
-            </tr>
-            <tr v-for="k in apiKeys" :key="k.id" class="border-b border-border last:border-0">
-              <td class="px-4 py-3 font-medium">{{ k.label }}</td>
-              <td class="px-4 py-3 font-mono text-xs">{{ k.id }}</td>
-              <td class="px-4 py-3 text-xs">
-                <span v-for="p in k.permissions" :key="p" class="inline-block bg-surface-alt text-text-muted px-2 py-0.5 rounded-sm mr-1">
-                  {{ p }}
-                </span>
-              </td>
-              <td class="px-4 py-3 text-xs text-text-muted">{{ fmtDtLocal(k.createdAt) }}</td>
-              <td class="px-4 py-3 text-right">
-                <BaseButton variant="secondary" size="sm" class="!text-danger" @click="onDelete(k.id)">
-                  {{ $t('trader.settings.apiKeys.deleteCta') }}
-                </BaseButton>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <BaseTable
+          :columns="apiColumns"
+          :items="apiKeys"
+          row-key="id"
+          :empty-text="$t('trader.settings.apiKeys.noKeys')"
+          panel-class=""
+          min-height="140px"
+          numeric
+        >
+          <template #cell-label="{ row }">
+            <span class="font-medium">{{ row.label }}</span>
+          </template>
+          <template #cell-id="{ row }">
+            <span class="font-mono text-xs text-text-muted">{{ row.id }}</span>
+          </template>
+          <template #cell-permissions="{ row }">
+            <span
+              v-for="p in row.permissions"
+              :key="p"
+              class="inline-block border border-border text-text-muted px-2 py-0.5 rounded-sm mr-1 font-mono text-[0.65rem] uppercase tracking-[0.12em]"
+            >
+              {{ p }}
+            </span>
+          </template>
+          <template #cell-createdAt="{ row }">
+            <span class="text-xs text-text-muted">{{ fmtDtLocal(row.createdAt) }}</span>
+          </template>
+          <template #cell-actions="{ row }">
+            <BaseButton variant="secondary" size="sm" class="!text-danger" @click="onDelete(row.id)">
+              {{ $t('trader.settings.apiKeys.deleteCta') }}
+            </BaseButton>
+          </template>
+        </BaseTable>
       </div>
-    </section>
-
-    <Teleport to="body">
-      <div
-        v-if="justCreatedKey"
-        class="fixed inset-0 bg-black/60 flex items-center justify-center z-30 px-4"
-        @click.self="settings.dismissCreated()"
-      >
-        <div class="trader-panel p-6 max-w-md w-full">
-          <h3 class="text-lg font-semibold mb-3">{{ $t('trader.settings.apiKeys.createSuccess') }}</h3>
-          <p class="text-sm text-warning mb-4">
-            <Icon name="lucide:triangle-alert" class="inline align-middle mr-1" size="14" aria-hidden="true" />{{ $t('trader.settings.apiKeys.secretWarning') }}
-          </p>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="text-xs text-text-muted mb-1">{{ $t('trader.settings.apiKeys.apiKeyLabel') }}</div>
-              <div class="font-mono text-xs bg-surface-alt px-3 py-2 rounded">{{ justCreatedKey.id }}</div>
-            </div>
-            <div>
-              <div class="text-xs text-text-muted mb-1">{{ $t('trader.settings.apiKeys.secretKeyLabel') }}</div>
-              <div class="flex items-center gap-2">
-                <div class="font-mono text-xs bg-surface-alt px-3 py-2 rounded flex-1 break-all">{{ justCreatedKey.secret }}</div>
-                <BaseButton variant="secondary" size="sm" @click="copySecret">{{ $t('trader.settings.apiKeys.copyCta') }}</BaseButton>
-              </div>
-            </div>
+    <BaseModal
+      :model-value="!!justCreatedKey"
+      :title="$t('trader.settings.apiKeys.createSuccess')"
+      width="md"
+      @update:model-value="onModalToggle"
+    >
+      <div v-if="justCreatedKey" class="space-y-4">
+        <p class="text-sm text-warning flex items-start gap-2">
+          <Icon name="lucide:triangle-alert" class="shrink-0 mt-0.5" size="15" aria-hidden="true" />
+          <span>{{ $t('trader.settings.apiKeys.secretWarning') }}</span>
+        </p>
+        <div>
+          <div class="text-xs text-text-muted mb-1">{{ $t('trader.settings.apiKeys.apiKeyLabel') }}</div>
+          <div class="font-mono text-xs bg-surface-alt px-3 py-2 rounded break-all">{{ justCreatedKey.id }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-text-muted mb-1">{{ $t('trader.settings.apiKeys.secretKeyLabel') }}</div>
+          <div class="flex items-center gap-2">
+            <div class="font-mono text-xs bg-surface-alt px-3 py-2 rounded flex-1 break-all">{{ justCreatedKey.secret }}</div>
+            <BaseButton variant="secondary" size="sm" @click="copySecret">
+              {{ $t('trader.settings.apiKeys.copyCta') }}
+            </BaseButton>
           </div>
-          <BaseButton variant="primary" block class="mt-6" @click="settings.dismissCreated()">
-            {{ $t('common.action.confirm') }}
-          </BaseButton>
         </div>
       </div>
-    </Teleport>
+      <template #footer="{ close }">
+        <BaseButton variant="primary" block @click="close">
+          {{ $t('common.action.confirm') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>

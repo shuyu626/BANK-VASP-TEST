@@ -528,6 +528,7 @@
     "settings": {
       "headTitle": "TaiEx — 設定",
       "title": "設定",
+      "subtitle": "管理你的帳戶、安全性與交易偏好",
       "tab": {
         "profile": "個人資料",
         "security": "安全性",
