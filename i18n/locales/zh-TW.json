@@ -915,7 +915,47 @@
       "tab": {
         "all": "全部",
         "open": "開倉中",
-        "history": "歷史"
+        "history": "歷史委託",
+        "trades": "成交紀錄"
+      },
+      "kpi": {
+        "openCount": "開倉中委託",
+        "openNotional": "開倉金額",
+        "filledToday": "今日成交",
+        "fee30d": "近 30 日手續費",
+        "unitOrders": "筆"
+      },
+      "filter": {
+        "symbolLabel": "幣對",
+        "allSymbols": "全部幣對",
+        "withCount": "{symbol}（{count}）"
+      },
+      "status": {
+        "open": "委託中",
+        "partial": "部分成交",
+        "filled": "已成交",
+        "cancelled": "已取消",
+        "rejected": "已拒絕"
+      },
+      "orderType": {
+        "limit": "限價",
+        "market": "市價"
+      },
+      "priceMarket": "市價",
+      "notional": "委託金額",
+      "progress": "成交進度",
+      "cancelAll": "全部取消（{count}）",
+      "cancelAllConfirm": "確定要取消目前篩選的 {count} 筆未成交委託？",
+      "cancelAllDone": "已取消 {ok} 筆，失敗 {fail} 筆",
+      "detailCta": "明細",
+      "detail": {
+        "title": "訂單明細 · {symbol}",
+        "orderId": "訂單編號",
+        "createdAt": "建立時間",
+        "updatedAt": "最後更新",
+        "avgFill": "成交均價",
+        "filled": "已成交數量",
+        "remaining": "剩餘數量"
       },
       "th": {
         "type": "類型"
@@ -932,7 +972,13 @@
       "subtitle": "實際撮合成交的交易明細",
       "back": "← 回委託",
       "exportCsv": "匯出 CSV",
-      "empty": "尚無成交紀錄"
+      "empty": "尚無成交紀錄",
+      "summary": {
+        "count": "成交筆數",
+        "volume": "總成交量",
+        "fee": "總手續費"
+      },
+      "emptyMobile": "尚無成交紀錄"
     },
     "notifications": {
       "panelTitle": "通知中心",

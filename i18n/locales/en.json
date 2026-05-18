@@ -915,7 +915,47 @@
       "tab": {
         "all": "All",
         "open": "Open",
-        "history": "History"
+        "history": "Order History",
+        "trades": "Trade History"
+      },
+      "kpi": {
+        "openCount": "Open Orders",
+        "openNotional": "Open Value",
+        "filledToday": "Filled Today",
+        "fee30d": "Fees (30d)",
+        "unitOrders": " orders"
+      },
+      "filter": {
+        "symbolLabel": "Pair",
+        "allSymbols": "All pairs",
+        "withCount": "{symbol} ({count})"
+      },
+      "status": {
+        "open": "Open",
+        "partial": "Partially filled",
+        "filled": "Filled",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected"
+      },
+      "orderType": {
+        "limit": "Limit",
+        "market": "Market"
+      },
+      "priceMarket": "Market",
+      "notional": "Order value",
+      "progress": "Fill progress",
+      "cancelAll": "Cancel all ({count})",
+      "cancelAllConfirm": "Cancel all {count} unfilled orders in the current filter?",
+      "cancelAllDone": "Cancelled {ok}, failed {fail}",
+      "detailCta": "Details",
+      "detail": {
+        "title": "Order detail · {symbol}",
+        "orderId": "Order ID",
+        "createdAt": "Created",
+        "updatedAt": "Last updated",
+        "avgFill": "Avg fill price",
+        "filled": "Filled qty",
+        "remaining": "Remaining qty"
       },
       "th": {
         "type": "Type"
@@ -932,7 +972,13 @@
       "subtitle": "Actual matched trades",
       "back": "← Back to orders",
       "exportCsv": "Export CSV",
-      "empty": "No trades yet"
+      "empty": "No trades yet",
+      "summary": {
+        "count": "Trades",
+        "volume": "Total volume",
+        "fee": "Total fees"
+      },
+      "emptyMobile": "No trades yet"
     },
     "notifications": {
       "panelTitle": "Notifications",
