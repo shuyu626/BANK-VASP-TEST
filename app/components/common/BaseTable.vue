@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends Record<string, unknown>">
+<script setup lang="ts" generic="T extends object">
 import { computed, ref, watch, useSlots } from 'vue'
 
 export interface TableColumn {
@@ -15,6 +15,9 @@ export interface TableColumn {
   /** 額外加在 <td> 的 class */
   cellClass?: string
 }
+
+type RowClassValue = string | string[] | Record<string, boolean>
+type RowKeyValue = string | number
 
 const props = withDefaults(defineProps<{
   /** Declarative 模式：給 columns 自動渲染 thead；不給就走 <slot name="head"> 舊模式 */
@@ -53,6 +56,24 @@ const props = withDefaults(defineProps<{
   skeletonRows?: number
   /** 表格區（含資料 / 空狀態 / 錯誤態）的最小高度，CSS height 字串，預設 '300px' */
   minHeight?: string
+  /** <table> 額外 class，可用於套用主題樣式（e.g. bank-table） */
+  tableClass?: string
+  /** <table> 最小寬度，預設 640px */
+  tableMinWidth?: string
+  /** 每列自訂 class（declarative body） */
+  rowClass?: RowClassValue | ((row: T, index: number) => RowClassValue)
+  /** 可控展開列 keys（declarative + #row-expanded slot） */
+  expandedKeys?: RowKeyValue[]
+  /** 非受控展開列初始 keys */
+  defaultExpandedKeys?: RowKeyValue[]
+  /** 點擊資料列時是否切換展開（預設 false） */
+  expandOnRowClick?: boolean
+  /** 允許展開的列條件；未提供時預設皆可展開 */
+  rowExpandable?: (row: T, index: number) => boolean
+  /** 展開列 colspan，預設沿用欄數推導 */
+  expandedColspan?: number
+  /** 展開列 tr 額外 class */
+  expandedRowClass?: string
 }>(), {
   paginated: false,
   defaultPageSize: 20,
@@ -65,12 +86,23 @@ const props = withDefaults(defineProps<{
   numeric: false,
   footerBordered: true,
   skeletonRows: 0,
-  minHeight: '300px'
+  minHeight: '300px',
+  tableClass: '',
+  tableMinWidth: '640px',
+  rowClass: undefined,
+  expandedKeys: undefined,
+  defaultExpandedKeys: () => [],
+  expandOnRowClick: false,
+  rowExpandable: undefined,
+  expandedColspan: undefined,
+  expandedRowClass: ''
 })
 
 const emit = defineEmits<{
   retry: []
   rowClick: [row: T, index: number]
+  'update:expandedKeys': [keys: RowKeyValue[]]
+  toggleExpand: [payload: { row: T; index: number; key: RowKeyValue; expanded: boolean }]
 }>()
 
 const slots = useSlots()
@@ -80,6 +112,8 @@ const { t } = useI18n()
 // ─── Mode detection ───
 const useColumnsHead = computed(() => Array.isArray(props.columns) && props.columns.length > 0)
 const useItemsBody = computed(() => Array.isArray(props.items))
+const hasExpandedSlot = computed(() => typeof slots['row-expanded'] === 'function')
+const canUseExpandableRows = computed(() => useColumnsHead.value && useItemsBody.value && hasExpandedSlot.value)
 
 // colspan 自動推導
 const colspanResolved = computed(() => {
@@ -87,6 +121,7 @@ const colspanResolved = computed(() => {
   if (useColumnsHead.value) return props.columns!.length
   return 1
 })
+const expandedColspanResolved = computed(() => props.expandedColspan ?? colspanResolved.value)
 
 // ─── Pagination state ───
 const page = ref(1)
@@ -122,11 +157,16 @@ const showSkeleton = computed(() =>
 )
 const showOverlay = computed(() => props.loading && !isEmpty.value && !hasError.value)
 
+const internalExpandedKeys = ref<RowKeyValue[]>([...props.defaultExpandedKeys])
+const expandedKeySet = computed(() =>
+  new Set<RowKeyValue>(props.expandedKeys ?? internalExpandedKeys.value)
+)
+
 // ─── Row helpers ───
-function getRowKey(row: T, index: number): string | number {
+function getRowKey(row: T, index: number): RowKeyValue {
   if (typeof props.rowKey === 'function') return props.rowKey(row, index)
   if (typeof props.rowKey === 'string') {
-    const v = row[props.rowKey]
+    const v = (row as Record<string, unknown>)[props.rowKey]
     if (typeof v === 'string' || typeof v === 'number') return v
   }
   if ('id' in row) {
@@ -136,14 +176,53 @@ function getRowKey(row: T, index: number): string | number {
   return index
 }
 
+function isRowExpandable(row: T, index: number): boolean {
+  if (!canUseExpandableRows.value) return false
+  if (typeof props.rowExpandable === 'function') return props.rowExpandable(row, index)
+  return true
+}
+
+function isRowExpanded(row: T, index: number): boolean {
+  if (!isRowExpandable(row, index)) return false
+  return expandedKeySet.value.has(getRowKey(row, index))
+}
+
+function setExpandedKeys(keys: RowKeyValue[]) {
+  if (props.expandedKeys === undefined) {
+    internalExpandedKeys.value = keys
+  }
+  emit('update:expandedKeys', keys)
+}
+
+function toggleExpanded(row: T, index: number) {
+  if (!isRowExpandable(row, index)) return
+  const key = getRowKey(row, index)
+  const next = new Set<RowKeyValue>(expandedKeySet.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  const expanded = next.has(key)
+  setExpandedKeys([...next])
+  emit('toggleExpand', { row, index, key, expanded })
+}
+
 function getCellValue(row: T, col: TableColumn): unknown {
-  return row[col.key]
+  return (row as Record<string, unknown>)[col.key]
 }
 
 function alignClass(a?: 'left' | 'right' | 'center'): string {
   if (a === 'right') return 'text-right'
   if (a === 'center') return 'text-center'
   return 'text-left'
+}
+
+function resolveRowClass(row: T, index: number): RowClassValue | undefined {
+  if (typeof props.rowClass === 'function') return props.rowClass(row, index)
+  return props.rowClass
+}
+
+function onDataRowClick(row: T, index: number) {
+  if (props.expandOnRowClick) toggleExpanded(row, index)
+  if (hasRowClickListener.value) emit('rowClick', row, index)
 }
 
 const hasRowClickListener = computed(() => 'onRowClick' in attrs)
@@ -161,7 +240,11 @@ defineExpose({
 <template>
   <div :class="panelClass">
     <div class="relative overflow-x-auto" :style="{ minHeight: minHeight }">
-      <table class="w-full text-sm min-w-[640px]">
+      <table
+        class="w-full text-sm"
+        :class="tableClass"
+        :style="tableMinWidth ? { minWidth: tableMinWidth } : undefined"
+      >
         <thead>
           <!-- Declarative 表頭：從 columns 自動產生 -->
           <tr v-if="useColumnsHead" class="text-xs text-text-muted border-b border-border">
@@ -218,30 +301,49 @@ defineExpose({
           </tr>
           <!-- Declarative body：根據 columns 自動鋪 td；每欄支援 #cell-<key> slot -->
           <template v-else-if="useColumnsHead && useItemsBody">
-            <tr
-              v-for="(row, idx) in visibleItems"
-              :key="getRowKey(row, idx)"
-              class="border-b border-border last:border-0"
-              :class="{ 'cursor-pointer hover:bg-surface-alt': hasRowClickListener }"
-              @click="hasRowClickListener && emit('rowClick', row, idx)"
-            >
-              <td
-                v-for="col in columns"
-                :key="col.key"
-                class="px-4 py-3"
-                :class="[alignClass(col.align), col.cellClass]"
+            <template v-for="(row, idx) in visibleItems" :key="getRowKey(row, idx)">
+              <tr
+                class="border-b border-border last:border-0"
+                :class="[
+                  resolveRowClass(row, idx),
+                  {
+                    'cursor-pointer hover:bg-surface-alt': hasRowClickListener || (expandOnRowClick && isRowExpandable(row, idx))
+                  }
+                ]"
+                @click="onDataRowClick(row, idx)"
               >
-                <slot
-                  :name="`cell-${col.key}`"
-                  :row="row"
-                  :index="idx"
-                  :value="getCellValue(row, col)"
-                  :column="col"
+                <td
+                  v-for="col in columns"
+                  :key="col.key"
+                  class="px-4 py-3"
+                  :class="[alignClass(col.align), col.cellClass]"
                 >
-                  {{ getCellValue(row, col) ?? '' }}
-                </slot>
-              </td>
-            </tr>
+                  <slot
+                    :name="`cell-${col.key}`"
+                    :row="row"
+                    :index="idx"
+                    :value="getCellValue(row, col)"
+                    :column="col"
+                  >
+                    {{ getCellValue(row, col) ?? '' }}
+                  </slot>
+                </td>
+              </tr>
+              <tr
+                v-if="isRowExpanded(row, idx)"
+                :class="expandedRowClass"
+              >
+                <td :colspan="expandedColspanResolved" class="px-4 py-3">
+                  <slot
+                    name="row-expanded"
+                    :row="row"
+                    :index="idx"
+                    :key-value="getRowKey(row, idx)"
+                    :toggle="() => toggleExpanded(row, idx)"
+                  />
+                </td>
+              </tr>
+            </template>
           </template>
           <!-- 舊模式：caller 自行寫 <tr><td>...</td></tr> -->
           <slot v-else />
