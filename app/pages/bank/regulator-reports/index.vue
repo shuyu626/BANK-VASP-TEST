@@ -20,6 +20,15 @@ interface Data {
 }
 
 const { data, errorMessage, refresh } = await useBankResource<Data>('/api/bank/regulator-reports')
+
+const recentReportColumns = computed(() => [
+  { key: 'kind', label: t('bank.regulator.thKind') },
+  { key: 'submittedAt', label: t('bank.regulator.thSubmitTime') },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'userId', label: t('common.label.user') },
+  { key: 'summary', label: t('bank.regulator.thSummary') },
+  { key: 'detail', label: '', align: 'right' as const }
+])
 </script>
 
 <template>
@@ -68,41 +77,37 @@ const { data, errorMessage, refresh } = await useBankResource<Data>('/api/bank/r
         {{ $t('bank.regulator.recentTitle') }}
         <span v-if="data.openAmlAlerts > 0" class="bank-stamp bank-gold-accent">{{ t('bank.regulator.amlPendingBadge', { count: data.openAmlAlerts }) }}</span>
       </h2>
-      <div class="bank-panel overflow-x-auto">
-        <table class="bank-table">
-          <thead>
-            <tr>
-              <th>{{ $t('bank.regulator.thKind') }}</th>
-              <th>{{ $t('bank.regulator.thSubmitTime') }}</th>
-              <th>{{ $t('common.label.status') }}</th>
-              <th>{{ $t('common.label.user') }}</th>
-              <th>{{ $t('bank.regulator.thSummary') }}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="data.recent.length === 0">
-              <td colspan="6" class="text-center text-text-muted py-10">{{ $t('bank.regulator.empty') }}</td>
-            </tr>
-            <tr v-for="r in data.recent" :key="`${r.kind}-${r.id}`">
-              <td>
-                <span class="text-xs uppercase tracking-wider font-semibold">{{ r.kind }}</span>
-              </td>
-              <td class="num text-text-muted text-xs">{{ fmtDt(r.submittedAt) }}</td>
-              <td>
-                <BaseBadge :variant="reportStatusVariant(r.status)">{{ r.status }}</BaseBadge>
-              </td>
-              <td class="font-mono text-xs">{{ r.userId }}</td>
-              <td class="text-xs">{{ r.summary }}</td>
-              <td class="text-right">
-                <NuxtLink :to="r.kind === 'ctr' ? '/bank/ctr' : '/bank/sar'" class="text-xs hover:underline">
-                  {{ $t('bank.regulator.viewDetail') }}
-                </NuxtLink>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <BaseTable
+        :columns="recentReportColumns"
+        :items="data.recent"
+        :row-key="(row) => `${row.kind}-${row.id}`"
+        numeric
+        :empty-text="$t('bank.regulator.empty')"
+        panel-class="bank-panel"
+        table-class="bank-table"
+        table-min-width="720px"
+      >
+        <template #cell-kind="{ row }">
+          <span class="text-xs uppercase tracking-wider font-semibold">{{ row.kind }}</span>
+        </template>
+        <template #cell-submittedAt="{ row }">
+          <span class="text-text-muted text-xs">{{ fmtDt(row.submittedAt) }}</span>
+        </template>
+        <template #cell-status="{ row }">
+          <BaseBadge :variant="reportStatusVariant(row.status)">{{ row.status }}</BaseBadge>
+        </template>
+        <template #cell-userId="{ row }">
+          <span class="font-mono text-xs">{{ row.userId }}</span>
+        </template>
+        <template #cell-summary="{ row }">
+          <span class="text-xs">{{ row.summary }}</span>
+        </template>
+        <template #cell-detail="{ row }">
+          <NuxtLink :to="row.kind === 'ctr' ? '/bank/ctr' : '/bank/sar'" class="text-xs hover:underline">
+            {{ $t('bank.regulator.viewDetail') }}
+          </NuxtLink>
+        </template>
+      </BaseTable>
     </section>
   </div>
 </template>

@@ -142,6 +142,16 @@ const myOpenOnSymbol = computed(() =>
   allOrders.value.filter(o => o.symbol === symbol.value && (o.status === 'open' || o.status === 'partial'))
 )
 
+const myOpenOrderColumns = computed(() => [
+  { key: 'createdAt', label: t('common.label.time') },
+  { key: 'type', label: t('trader.orders.th.type') },
+  { key: 'side', label: t('common.label.side') },
+  { key: 'price', label: t('common.label.price'), align: 'right' as const },
+  { key: 'quantity', label: t('common.label.quantity'), align: 'right' as const },
+  { key: 'filledQty', label: t('common.label.filledQty'), align: 'right' as const },
+  { key: 'actions', label: '', align: 'right' as const }
+])
+
 async function cancelMy(id: string) {
   try {
     await orders.cancel(id)
@@ -214,36 +224,33 @@ watch(() => orders.orders.length, () => { /* no-op keep reactive */ })
         <NuxtLink to="/trader/orders" class="text-primary-400 hover:text-primary-300">{{ $t('trader.trade.allOrders') }}</NuxtLink>
       </div>
       <div class="overflow-x-auto">
-      <table class="w-full text-xs num min-w-[640px]">
-        <thead class="text-text-muted">
-          <tr class="border-b border-border">
-            <th class="text-left px-4 py-2 font-medium">{{ $t('common.label.time') }}</th>
-            <th class="text-left px-4 py-2 font-medium">{{ $t('trader.orders.th.type') }}</th>
-            <th class="text-left px-4 py-2 font-medium">{{ $t('common.label.side') }}</th>
-            <th class="text-right px-4 py-2 font-medium">{{ $t('common.label.price') }}</th>
-            <th class="text-right px-4 py-2 font-medium">{{ $t('common.label.quantity') }}</th>
-            <th class="text-right px-4 py-2 font-medium">{{ $t('common.label.filledQty') }}</th>
-            <th class="text-right px-4 py-2 font-medium" />
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="o in myOpenOnSymbol" :key="o.id" class="border-b border-border last:border-0">
-            <td class="px-4 py-2 text-text-muted">{{ fmtDt(o.createdAt) }}</td>
-            <td class="px-4 py-2">{{ o.type }}</td>
-            <td class="px-4 py-2" :class="o.side === 'buy' ? 'text-market-down' : 'text-market-up'">
-              {{ o.side === 'buy' ? $t('side.buyShort') : $t('side.sellShort') }}
-            </td>
-            <td class="px-4 py-2 text-right">{{ o.price ? fmtPrice(o.price) : '—' }}</td>
-            <td class="px-4 py-2 text-right">{{ fmtOrderQty(o.quantity) }}</td>
-            <td class="px-4 py-2 text-right text-text-muted">{{ fmtOrderQty(o.filledQty) }}</td>
-            <td class="px-4 py-2 text-right">
-              <BaseButton variant="secondary" size="sm" class="!text-danger" @click="cancelMy(o.id)">
-                {{ $t('trader.orders.cancelCta') }}
-              </BaseButton>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <BaseTable
+          :columns="myOpenOrderColumns"
+          :items="myOpenOnSymbol"
+          row-key="id"
+          numeric
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="text-xs"
+        >
+          <template #cell-createdAt="{ row }">
+            <span class="text-text-muted">{{ fmtDt(row.createdAt) }}</span>
+          </template>
+          <template #cell-side="{ row }">
+            <span :class="row.side === 'buy' ? 'text-market-down' : 'text-market-up'">
+              {{ row.side === 'buy' ? $t('side.buyShort') : $t('side.sellShort') }}
+            </span>
+          </template>
+          <template #cell-price="{ row }">{{ row.price ? fmtPrice(row.price) : '—' }}</template>
+          <template #cell-quantity="{ row }">{{ fmtOrderQty(row.quantity) }}</template>
+          <template #cell-filledQty="{ row }">
+            <span class="text-text-muted">{{ fmtOrderQty(row.filledQty) }}</span>
+          </template>
+          <template #cell-actions="{ row }">
+            <BaseButton variant="secondary" size="sm" class="!text-danger" @click="cancelMy(row.id)">
+              {{ $t('trader.orders.cancelCta') }}
+            </BaseButton>
+          </template>
+        </BaseTable>
       </div>
     </section>
 

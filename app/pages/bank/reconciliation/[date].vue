@@ -33,6 +33,16 @@ const { t } = useI18n()
 
 const { data, errorMessage, refresh } = await useBankResource<Detail>(() => `/api/bank/reconciliation/${date.value}`)
 useHead(() => ({ title: t('bank.head.reconciliationDate', { date: date.value }) }))
+
+const reconciliationColumns = computed(() => [
+  { key: 'submittedAt', label: t('common.label.submitTime') },
+  { key: 'kind', label: t('common.label.direction') },
+  { key: 'userName', label: t('common.label.user') },
+  { key: 'amount', label: t('common.label.amount'), align: 'right' as const },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'bankReference', label: t('bank.trustAccounts.detail.thRef') },
+  { key: 'completedAt', label: t('bank.reconciliation.detail.thFinish') }
+])
 </script>
 
 <template>
@@ -67,43 +77,42 @@ useHead(() => ({ title: t('bank.head.reconciliationDate', { date: date.value }) 
       />
     </section>
 
-    <div class="bank-panel overflow-x-auto">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th>{{ $t('common.label.submitTime') }}</th>
-            <th>{{ $t('common.label.direction') }}</th>
-            <th>{{ $t('common.label.user') }}</th>
-            <th class="text-right">{{ $t('common.label.amount') }}</th>
-            <th>{{ $t('common.label.status') }}</th>
-            <th>{{ $t('bank.trustAccounts.detail.thRef') }}</th>
-            <th>{{ $t('bank.reconciliation.detail.thFinish') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="data.rows.length === 0">
-            <td colspan="7" class="text-center text-text-muted py-10">{{ $t('bank.reconciliation.detail.empty') }}</td>
-          </tr>
-          <tr v-for="r in data.rows" :key="`${r.kind}-${r.id}`">
-            <td class="num text-text-muted text-xs">{{ fmtDt(r.submittedAt) }}</td>
-            <td>
-              <span :class="r.kind === 'deposit' ? 'text-success' : 'text-text-muted'">
-                {{ r.kind === 'deposit' ? $t('bank.reconciliation.detail.kindIn') : $t('bank.reconciliation.detail.kindOut') }}
-              </span>
-            </td>
-            <td>
-              <div class="font-medium">{{ r.userName }}</div>
-              <div class="text-xs text-text-muted font-mono">{{ r.userId }}</div>
-            </td>
-            <td class="text-right num font-medium">{{ fmtTwd(r.amount) }}</td>
-            <td>
-              <BaseBadge :variant="fiatTxnVariant(r.status)">{{ r.status }}</BaseBadge>
-            </td>
-            <td class="font-mono text-xs text-text-muted">{{ r.bankReference ?? '—' }}</td>
-            <td class="num text-text-muted text-xs">{{ fmtDt(r.completedAt) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <BaseTable
+      :columns="reconciliationColumns"
+      :items="data.rows"
+      :row-key="(row) => `${row.kind}-${row.id}`"
+      numeric
+      :empty-text="$t('bank.reconciliation.detail.empty')"
+      panel-class="bank-panel"
+      table-class="bank-table"
+      table-min-width="720px"
+    >
+      <template #cell-submittedAt="{ row }">
+        <span class="text-text-muted text-xs">{{ fmtDt(row.submittedAt) }}</span>
+      </template>
+      <template #cell-kind="{ row }">
+        <span :class="row.kind === 'deposit' ? 'text-success' : 'text-text-muted'">
+          {{ row.kind === 'deposit' ? $t('bank.reconciliation.detail.kindIn') : $t('bank.reconciliation.detail.kindOut') }}
+        </span>
+      </template>
+      <template #cell-userName="{ row }">
+        <div>
+          <div class="font-medium">{{ row.userName }}</div>
+          <div class="text-xs text-text-muted font-mono">{{ row.userId }}</div>
+        </div>
+      </template>
+      <template #cell-amount="{ row }">
+        <span class="font-medium">{{ fmtTwd(row.amount) }}</span>
+      </template>
+      <template #cell-status="{ row }">
+        <BaseBadge :variant="fiatTxnVariant(row.status)">{{ row.status }}</BaseBadge>
+      </template>
+      <template #cell-bankReference="{ row }">
+        <span class="font-mono text-xs text-text-muted">{{ row.bankReference ?? '—' }}</span>
+      </template>
+      <template #cell-completedAt="{ row }">
+        <span class="text-text-muted text-xs">{{ fmtDt(row.completedAt) }}</span>
+      </template>
+    </BaseTable>
   </div>
 </template>

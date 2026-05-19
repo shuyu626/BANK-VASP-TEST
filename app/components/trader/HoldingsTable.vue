@@ -24,6 +24,15 @@ function gatedTitle(actionKey: string, isApproved: boolean) {
 function formatAmount(n: number, digits = 4) {
   return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
+
+const holdingsColumns = computed(() => [
+  { key: 'symbol', label: t('common.label.asset') },
+  { key: 'amount', label: t('common.label.holdings'), align: 'right' as const },
+  { key: 'priceTwd', label: t('common.label.marketPrice'), align: 'right' as const },
+  { key: 'valueTwd', label: t('common.label.valueTwd'), align: 'right' as const },
+  { key: 'change24h', label: t('common.label.change24h'), align: 'right' as const },
+  { key: 'pnlPct', label: t('common.label.pnl'), align: 'right' as const }
+])
 </script>
 
 <template>
@@ -40,42 +49,42 @@ function formatAmount(n: number, digits = 4) {
     </div>
 
     <div v-else class="trader-panel overflow-hidden">
-      <table class="w-full">
-        <thead>
-          <tr class="text-xs text-text-muted border-b border-border">
-            <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.asset') }}</th>
-            <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.holdings') }}</th>
-            <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.marketPrice') }}</th>
-            <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.valueTwd') }}</th>
-            <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.change24h') }}</th>
-            <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.pnl') }}</th>
-          </tr>
-        </thead>
-        <tbody class="num">
-          <tr v-for="h in holdings" :key="h.symbol" class="border-b border-border last:border-0 hover:bg-surface-alt transition">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
-                  {{ h.icon }}
-                </span>
-                <div>
-                  <div class="font-medium">{{ h.symbol }}</div>
-                  <div class="text-xs text-text-muted">{{ h.name }}</div>
-                </div>
-              </div>
-            </td>
-            <td class="text-right px-4 py-3">{{ formatAmount(h.amount, 4) }}</td>
-            <td class="text-right px-4 py-3 text-text-muted">{{ fmtPrice(h.priceTwd) }}</td>
-            <td class="text-right px-4 py-3">{{ h.valueTwd.toLocaleString('en-US', { maximumFractionDigits: 0 }) }}</td>
-            <td class="text-right px-4 py-3" :class="h.change24h >= 0 ? 'up' : 'down'">
-              {{ h.change24h >= 0 ? '+' : '' }}{{ h.change24h.toFixed(2) }}%
-            </td>
-            <td class="text-right px-4 py-3" :class="h.pnlPct >= 0 ? 'up' : 'down'">
-              {{ h.pnlPct >= 0 ? '+' : '' }}{{ h.pnlPct.toFixed(2) }}%
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <BaseTable
+        :columns="holdingsColumns"
+        :items="holdings"
+        row-key="symbol"
+        numeric
+        panel-class="bg-transparent border-0 rounded-none"
+        table-min-width=""
+        row-class="hover:bg-surface-alt transition"
+      >
+        <template #cell-symbol="{ row }">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
+              {{ row.icon }}
+            </span>
+            <div>
+              <div class="font-medium">{{ row.symbol }}</div>
+              <div class="text-xs text-text-muted">{{ row.name }}</div>
+            </div>
+          </div>
+        </template>
+        <template #cell-amount="{ row }">{{ formatAmount(row.amount, 4) }}</template>
+        <template #cell-priceTwd="{ row }">
+          <span class="text-text-muted">{{ fmtPrice(row.priceTwd) }}</span>
+        </template>
+        <template #cell-valueTwd="{ row }">{{ row.valueTwd.toLocaleString('en-US', { maximumFractionDigits: 0 }) }}</template>
+        <template #cell-change24h="{ row }">
+          <span :class="row.change24h >= 0 ? 'up' : 'down'">
+            {{ row.change24h >= 0 ? '+' : '' }}{{ row.change24h.toFixed(2) }}%
+          </span>
+        </template>
+        <template #cell-pnlPct="{ row }">
+          <span :class="row.pnlPct >= 0 ? 'up' : 'down'">
+            {{ row.pnlPct >= 0 ? '+' : '' }}{{ row.pnlPct.toFixed(2) }}%
+          </span>
+        </template>
+      </BaseTable>
       <div class="px-4 py-3 border-t border-border flex gap-2 justify-end">
         <BaseButton
           v-if="isApproved"

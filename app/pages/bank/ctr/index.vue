@@ -12,13 +12,19 @@ interface Item {
 
 const { data, errorMessage, refresh } = await useBankResource<{ items: Item[] }>('/api/bank/ctr')
 const toast = useToast()
-const expanded = ref<Set<string>>(new Set())
+const ctrItems = computed(() => data.value?.items ?? [])
+const expandedReportIds = ref<string[]>([])
 
-function toggle(id: string) {
-  if (expanded.value.has(id)) expanded.value.delete(id)
-  else expanded.value.add(id)
-  expanded.value = new Set(expanded.value)
-}
+const ctrColumns = computed(() => [
+  { key: 'expander', label: '', headerClass: 'w-8 text-center', cellClass: 'text-center text-text-muted' },
+  { key: 'reportDate', label: t('bank.ctr.th.reportDate') },
+  { key: 'user', label: t('common.label.user') },
+  { key: 'totalAmount', label: t('bank.ctr.th.totalAmount'), align: 'right' as const },
+  { key: 'txCount', label: t('bank.ctr.th.txCount'), align: 'right' as const },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'submittedAt', label: t('bank.ctr.th.submitTime') },
+  { key: 'action', label: t('common.label.action'), align: 'right' as const }
+])
 
 async function onMark(id: string, status: 'submitted' | 'accepted') {
   try {
@@ -39,89 +45,90 @@ async function onMark(id: string, status: 'submitted' | 'accepted') {
   <div class="space-y-6">
     <BasePageHeader :title="$t('bank.ctr.title')" :subtitle="$t('bank.ctr.subtitle')" />
 
-    <div class="bank-panel overflow-x-auto">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th class="w-8" />
-            <th>{{ $t('bank.ctr.th.reportDate') }}</th>
-            <th>{{ $t('common.label.user') }}</th>
-            <th class="text-right">{{ $t('bank.ctr.th.totalAmount') }}</th>
-            <th class="text-right">{{ $t('bank.ctr.th.txCount') }}</th>
-            <th>{{ $t('common.label.status') }}</th>
-            <th>{{ $t('bank.ctr.th.submitTime') }}</th>
-            <th>{{ $t('common.label.action') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <BaseTableErrorRow v-if="errorMessage" :colspan="8" :message="errorMessage" @retry="refresh()" />
-          <tr v-else-if="!data || data.items.length === 0">
-            <td colspan="8" class="text-center text-text-muted py-10">{{ $t('bank.ctr.empty') }}</td>
-          </tr>
-          <template v-for="it in data?.items ?? []" :key="it.report.id">
-            <tr class="cursor-pointer" @click="toggle(it.report.id)">
-              <td class="text-center text-text-muted">{{ expanded.has(it.report.id) ? '▼' : '▶' }}</td>
-              <td class="num">{{ it.report.reportDate }}</td>
-              <td>
-                <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
-                <div class="text-xs text-text-muted font-mono">{{ it.report.userId }}</div>
-              </td>
-              <td class="text-right num font-medium">{{ fmtTwd(it.report.totalAmount) }}</td>
-              <td class="text-right num text-text-muted">{{ it.report.txIds.length }}</td>
-              <td>
-                <BaseBadge :variant="reportStatusVariant(it.report.status)">{{ it.report.status }}</BaseBadge>
-              </td>
-              <td class="num text-text-muted text-xs">{{ fmtDt(it.report.submittedAt) }}</td>
-              <td class="text-right" @click.stop>
-                <BaseButton
-                  v-if="it.report.status === 'draft'"
-                  variant="secondary"
-                  size="sm"
-                  class="!border-primary-900 !text-primary-900"
-                  @click="onMark(it.report.id, 'submitted')"
-                >
-                  {{ $t('bank.ctr.submitCta') }}
-                </BaseButton>
-                <BaseButton
-                  v-else-if="it.report.status === 'submitted'"
-                  variant="secondary"
-                  size="sm"
-                  class="!border-success !text-success"
-                  @click="onMark(it.report.id, 'accepted')"
-                >
-                  {{ $t('bank.ctr.markAccept') }}
-                </BaseButton>
-                <span v-else class="text-xs text-text-muted">—</span>
-              </td>
-            </tr>
-            <tr v-if="expanded.has(it.report.id)">
-              <td colspan="8" class="px-8 py-3 bg-neutral-50">
-                <div class="text-xs space-y-3">
-                  <div>
-                    <div class="font-semibold mb-1">{{ $t('bank.ctr.txIds') }}</div>
-                    <ul class="font-mono space-y-0.5">
-                      <li v-for="tx in it.report.txIds" :key="tx">{{ tx }}</li>
-                    </ul>
-                  </div>
-                  <div class="flex gap-2 items-center pt-2 border-t border-border">
-                    <span class="text-text-muted">{{ $t('bank.ctr.exportTitle') }}</span>
-                    <a
-                      :href="`/api/bank/ctr/${it.report.id}/export?format=json`"
-                      class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
-                      download
-                    >{{ $t('bank.common.exportJson') }}</a>
-                    <a
-                      :href="`/api/bank/ctr/${it.report.id}/export?format=xml`"
-                      class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
-                      download
-                    >{{ $t('bank.common.exportXml') }}</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-    </div>
+    <BaseTable
+      :columns="ctrColumns"
+      :items="ctrItems"
+      :row-key="(row) => row.report.id"
+      :expanded-keys="expandedReportIds"
+      expand-on-row-click
+      :expanded-colspan="8"
+      numeric
+      :error-message="errorMessage"
+      :empty-text="$t('bank.ctr.empty')"
+      panel-class="bank-panel"
+      table-class="bank-table"
+      table-min-width="720px"
+      @update:expanded-keys="(keys) => { expandedReportIds = keys as string[] }"
+      @retry="refresh()"
+    >
+      <template #cell-expander="{ row }">
+        {{ expandedReportIds.includes(row.report.id) ? '▼' : '▶' }}
+      </template>
+      <template #cell-reportDate="{ row }">{{ row.report.reportDate }}</template>
+      <template #cell-user="{ row }">
+        <div>
+          <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
+          <div class="text-xs text-text-muted font-mono">{{ row.report.userId }}</div>
+        </div>
+      </template>
+      <template #cell-totalAmount="{ row }">
+        <span class="font-medium">{{ fmtTwd(row.report.totalAmount) }}</span>
+      </template>
+      <template #cell-txCount="{ row }">
+        <span class="text-text-muted">{{ row.report.txIds.length }}</span>
+      </template>
+      <template #cell-status="{ row }">
+        <BaseBadge :variant="reportStatusVariant(row.report.status)">{{ row.report.status }}</BaseBadge>
+      </template>
+      <template #cell-submittedAt="{ row }">
+        <span class="text-text-muted text-xs">{{ fmtDt(row.report.submittedAt) }}</span>
+      </template>
+      <template #cell-action="{ row }">
+        <div class="text-right" @click.stop>
+          <BaseButton
+            v-if="row.report.status === 'draft'"
+            variant="secondary"
+            size="sm"
+            class="!border-primary-900 !text-primary-900"
+            @click="onMark(row.report.id, 'submitted')"
+          >
+            {{ $t('bank.ctr.submitCta') }}
+          </BaseButton>
+          <BaseButton
+            v-else-if="row.report.status === 'submitted'"
+            variant="secondary"
+            size="sm"
+            class="!border-success !text-success"
+            @click="onMark(row.report.id, 'accepted')"
+          >
+            {{ $t('bank.ctr.markAccept') }}
+          </BaseButton>
+          <span v-else class="text-xs text-text-muted">—</span>
+        </div>
+      </template>
+      <template #row-expanded="{ row }">
+        <div class="-mx-4 -my-3 px-8 py-3 bg-neutral-50 text-xs space-y-3">
+          <div>
+            <div class="font-semibold mb-1">{{ $t('bank.ctr.txIds') }}</div>
+            <ul class="font-mono space-y-0.5">
+              <li v-for="tx in row.report.txIds" :key="tx">{{ tx }}</li>
+            </ul>
+          </div>
+          <div class="flex gap-2 items-center pt-2 border-t border-border">
+            <span class="text-text-muted">{{ $t('bank.ctr.exportTitle') }}</span>
+            <a
+              :href="`/api/bank/ctr/${row.report.id}/export?format=json`"
+              class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
+              download
+            >{{ $t('bank.common.exportJson') }}</a>
+            <a
+              :href="`/api/bank/ctr/${row.report.id}/export?format=xml`"
+              class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
+              download
+            >{{ $t('bank.common.exportXml') }}</a>
+          </div>
+        </div>
+      </template>
+    </BaseTable>
   </div>
 </template>

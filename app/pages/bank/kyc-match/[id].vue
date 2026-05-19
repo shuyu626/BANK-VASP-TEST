@@ -44,6 +44,13 @@ async function onVerify() {
     submitting.value = false
   }
 }
+
+const bankAccountColumns = computed(() => [
+  { key: 'bankName', label: t('bank.kycMatch.detail.bank') },
+  { key: 'accountNumber', label: t('bank.kycMatch.detail.accountNumber') },
+  { key: 'accountName', label: t('bank.kycMatch.detail.accountName') },
+  { key: 'isVerified', label: t('bank.kycMatch.detail.verified') }
+])
 </script>
 
 <template>
@@ -76,28 +83,25 @@ async function onVerify() {
       <h2 class="bank-heading text-lg mb-4">{{ $t('bank.kycMatch.detail.boundBanks') }}</h2>
       <div v-if="data.bankAccounts.length === 0" class="text-sm text-text-muted">{{ $t('bank.kycMatch.detail.noBoundBanks') }}</div>
       <div v-else class="overflow-x-auto -mx-6 px-6">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th>{{ $t('bank.kycMatch.detail.bank') }}</th>
-            <th>{{ $t('bank.kycMatch.detail.accountNumber') }}</th>
-            <th>{{ $t('bank.kycMatch.detail.accountName') }}</th>
-            <th>{{ $t('bank.kycMatch.detail.verified') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="b in data.bankAccounts" :key="b.id">
-            <td>{{ b.bankCode }} · {{ b.bankName }}</td>
-            <td class="font-mono num">{{ b.accountNumber }}</td>
-            <td>{{ b.accountName }}</td>
-            <td>
-              <BaseBadge :variant="b.isVerified ? 'success' : 'warning'">
-                {{ b.isVerified ? $t('bank.kycMatch.verifiedYes') : $t('bank.kycMatch.verifiedNo') }}
-              </BaseBadge>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <BaseTable
+          :columns="bankAccountColumns"
+          :items="data.bankAccounts"
+          row-key="id"
+          numeric
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="bank-table"
+          table-min-width="720px"
+        >
+          <template #cell-bankName="{ row }">{{ row.bankCode }} · {{ row.bankName }}</template>
+          <template #cell-accountNumber="{ row }">
+            <span class="font-mono">{{ row.accountNumber }}</span>
+          </template>
+          <template #cell-isVerified="{ row }">
+            <BaseBadge :variant="row.isVerified ? 'success' : 'warning'">
+              {{ row.isVerified ? $t('bank.kycMatch.verifiedYes') : $t('bank.kycMatch.verifiedNo') }}
+            </BaseBadge>
+          </template>
+        </BaseTable>
       </div>
     </section>
 

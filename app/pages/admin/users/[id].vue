@@ -77,6 +77,21 @@ async function onChangeRisk() {
     toast.error(t('admin.users.detail.riskFailed'))
   }
 }
+
+const holdingsColumns = computed(() => [
+  { key: 'symbol', label: t('admin.users.detail.thAsset') },
+  { key: 'amount', label: t('admin.users.detail.thAmount'), align: 'right' as const },
+  { key: 'avgCost', label: t('admin.users.detail.thCost'), align: 'right' as const }
+])
+
+const recentOrderColumns = computed(() => [
+  { key: 'createdAt', label: t('common.label.time') },
+  { key: 'symbol', label: t('common.label.symbol') },
+  { key: 'side', label: t('common.label.side') },
+  { key: 'type', label: t('trader.orders.th.type') },
+  { key: 'quantity', label: t('common.label.quantity'), align: 'right' as const },
+  { key: 'status', label: t('common.label.status') }
+])
 </script>
 
 <template>
@@ -185,22 +200,20 @@ async function onChangeRisk() {
       <div v-else class="text-sm text-text-muted mb-4">{{ $t('admin.users.detail.noTrust') }}</div>
 
       <div v-if="data.holdings.length > 0" class="overflow-x-auto -mx-6 px-6">
-      <table class="w-full text-sm num min-w-[420px]">
-        <thead>
-          <tr class="text-xs text-text-muted border-b border-border">
-            <th class="text-left px-3 py-2">{{ $t('admin.users.detail.thAsset') }}</th>
-            <th class="text-right px-3 py-2">{{ $t('admin.users.detail.thAmount') }}</th>
-            <th class="text-right px-3 py-2">{{ $t('admin.users.detail.thCost') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="h in data.holdings" :key="h.symbol" class="border-b border-border last:border-0">
-            <td class="px-3 py-2">{{ h.icon }} {{ h.symbol }}</td>
-            <td class="px-3 py-2 text-right">{{ h.amount }}</td>
-            <td class="px-3 py-2 text-right text-text-muted">{{ h.avgCost.toLocaleString('en-US') }}</td>
-          </tr>
-        </tbody>
-      </table>
+        <BaseTable
+          :columns="holdingsColumns"
+          :items="data.holdings"
+          row-key="symbol"
+          numeric
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="text-sm"
+          table-min-width="420px"
+        >
+          <template #cell-symbol="{ row }">{{ row.icon }} {{ row.symbol }}</template>
+          <template #cell-avgCost="{ row }">
+            <span class="text-text-muted">{{ row.avgCost.toLocaleString('en-US') }}</span>
+          </template>
+        </BaseTable>
       </div>
       <div v-else class="text-sm text-text-muted">{{ $t('admin.users.detail.noHoldings') }}</div>
     </section>
@@ -209,28 +222,25 @@ async function onChangeRisk() {
     <section class="bg-surface border border-border rounded p-6">
       <h2 class="text-sm font-semibold mb-4">{{ $t('admin.users.detail.recentOrders') }}</h2>
       <div v-if="data.recentOrders.length > 0" class="overflow-x-auto -mx-6 px-6">
-      <table class="w-full text-sm num min-w-[640px]">
-        <thead>
-          <tr class="text-xs text-text-muted border-b border-border">
-            <th class="text-left px-3 py-2">{{ $t('common.label.time') }}</th>
-            <th class="text-left px-3 py-2">{{ $t('common.label.symbol') }}</th>
-            <th class="text-left px-3 py-2">{{ $t('common.label.side') }}</th>
-            <th class="text-left px-3 py-2">{{ $t('trader.orders.th.type') }}</th>
-            <th class="text-right px-3 py-2">{{ $t('common.label.quantity') }}</th>
-            <th class="text-left px-3 py-2">{{ $t('common.label.status') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="o in data.recentOrders" :key="o.id" class="border-b border-border last:border-0">
-            <td class="px-3 py-2 text-text-muted">{{ fmtDt(o.createdAt) }}</td>
-            <td class="px-3 py-2">{{ o.symbol }}</td>
-            <td class="px-3 py-2">{{ o.side }}</td>
-            <td class="px-3 py-2 text-xs">{{ o.type }}</td>
-            <td class="px-3 py-2 text-right">{{ o.quantity }}</td>
-            <td class="px-3 py-2 text-xs">{{ o.status }}</td>
-          </tr>
-        </tbody>
-      </table>
+        <BaseTable
+          :columns="recentOrderColumns"
+          :items="data.recentOrders"
+          row-key="id"
+          numeric
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="text-sm"
+          table-min-width="640px"
+        >
+          <template #cell-createdAt="{ row }">
+            <span class="text-text-muted">{{ fmtDt(row.createdAt) }}</span>
+          </template>
+          <template #cell-type="{ row }">
+            <span class="text-xs">{{ row.type }}</span>
+          </template>
+          <template #cell-status="{ row }">
+            <span class="text-xs">{{ row.status }}</span>
+          </template>
+        </BaseTable>
       </div>
       <div v-else class="text-sm text-text-muted">{{ $t('admin.users.detail.noOrders') }}</div>
     </section>

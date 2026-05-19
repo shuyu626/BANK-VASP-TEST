@@ -57,6 +57,63 @@ const lastUpdate = computed(() => {
   if (!ts) return ''
   return ts.slice(11, 19)
 })
+
+const openOrderItems = computed(() => orderbook.value?.openOrders ?? [])
+
+interface LadderRow {
+  id: string
+  askPrice: number | null
+  qty: number
+  bidPrice: number | null
+}
+
+const ladderRows = computed<LadderRow[]>(() => {
+  if (!orderbook.value) return []
+  const asks = orderbook.value.book.asks.slice(0, 5).map((level, i) => ({
+    id: `a${i}`,
+    askPrice: level.price,
+    qty: level.quantity,
+    bidPrice: null
+  }))
+  const bids = orderbook.value.book.bids.slice(0, 5).map((level, i) => ({
+    id: `b${i}`,
+    askPrice: null,
+    qty: level.quantity,
+    bidPrice: level.price
+  }))
+  return [...asks, ...bids]
+})
+
+const ladderColumns = computed(() => [
+  {
+    key: 'askPrice',
+    label: t('admin.orderbook.thAsk'),
+    headerClass: 'text-left px-3 py-2',
+    cellClass: 'px-3 py-1'
+  },
+  {
+    key: 'qty',
+    label: t('admin.orderbook.thQty'),
+    align: 'right' as const,
+    headerClass: 'px-3 py-2',
+    cellClass: 'px-3 py-1'
+  },
+  {
+    key: 'bidPrice',
+    label: t('admin.orderbook.thBid'),
+    align: 'right' as const,
+    headerClass: 'px-3 py-2',
+    cellClass: 'px-3 py-1'
+  }
+])
+
+const openOrderColumns = computed(() => [
+  { key: 'createdAt', label: t('common.label.time') },
+  { key: 'owner', label: t('common.label.user') },
+  { key: 'side', label: t('common.label.side') },
+  { key: 'price', label: t('common.label.price'), align: 'right' as const },
+  { key: 'remaining', label: t('common.label.quantity'), align: 'right' as const }
+])
 </script>
 
 <template>
@@ -169,29 +226,24 @@ const lastUpdate = computed(() => {
           </span>
           <span class="text-xs font-semibold text-text num">{{ symbol }}</span>
         </div>
-        <div class="overflow-x-auto">
-        <table class="w-full text-sm num min-w-[420px]">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-3 py-2">{{ $t('admin.orderbook.thAsk') }}</th>
-              <th class="text-right px-3 py-2">{{ $t('admin.orderbook.thQty') }}</th>
-              <th class="text-right px-3 py-2">{{ $t('admin.orderbook.thBid') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(level, i) in orderbook.book.asks.slice(0, 5)" :key="'a'+i" class="border-b border-border last:border-0">
-              <td class="px-3 py-1 text-market-up">{{ fmtPrice(level.price) }}</td>
-              <td class="px-3 py-1 text-right">{{ fmtQty(level.quantity) }}</td>
-              <td />
-            </tr>
-            <tr v-for="(level, i) in orderbook.book.bids.slice(0, 5)" :key="'b'+i" class="border-b border-border last:border-0">
-              <td />
-              <td class="px-3 py-1 text-right">{{ fmtQty(level.quantity) }}</td>
-              <td class="px-3 py-1 text-market-down">{{ fmtPrice(level.price) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
+        <BaseTable
+          :columns="ladderColumns"
+          :items="ladderRows"
+          row-key="id"
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="text-sm num"
+          table-min-width="420px"
+          min-height="0"
+          :empty-text="$t('admin.orderbook.noOpen')"
+        >
+          <template #cell-askPrice="{ row }">
+            <span v-if="row.askPrice !== null" class="text-market-up">{{ fmtPrice(row.askPrice) }}</span>
+          </template>
+          <template #cell-qty="{ row }">{{ fmtQty(row.qty) }}</template>
+          <template #cell-bidPrice="{ row }">
+            <span v-if="row.bidPrice !== null" class="text-market-down">{{ fmtPrice(row.bidPrice) }}</span>
+          </template>
+        </BaseTable>
       </section>
 
       <section class="bg-surface border border-border rounded overflow-hidden">
@@ -201,39 +253,35 @@ const lastUpdate = computed(() => {
           </span>
           <span class="text-xs font-semibold text-text num">{{ symbol }}</span>
         </div>
-        <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[640px]">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-3 py-2">{{ $t('common.label.time') }}</th>
-              <th class="text-left px-3 py-2">{{ $t('common.label.user') }}</th>
-              <th class="text-left px-3 py-2">{{ $t('common.label.side') }}</th>
-              <th class="text-right px-3 py-2">{{ $t('common.label.price') }}</th>
-              <th class="text-right px-3 py-2">{{ $t('common.label.quantity') }}</th>
-            </tr>
-          </thead>
-          <tbody class="num">
-            <tr v-if="orderbook.openOrders.length === 0">
-              <td colspan="5" class="px-3 py-6 text-center text-text-muted text-xs">{{ $t('admin.orderbook.noOpen') }}</td>
-            </tr>
-            <tr v-for="o in orderbook.openOrders" :key="o.id"
-              class="border-b border-border last:border-0"
-              :class="{ 'bg-warning/10': o.isLarge }">
-              <td class="px-3 py-2 text-text-muted text-xs">{{ fmtDt(o.createdAt) }}</td>
-              <td class="px-3 py-2 text-xs">
-                {{ o.owner?.displayName ?? '—' }}
-                <div class="text-text-muted font-mono">{{ o.userId }}</div>
-              </td>
-              <td class="px-3 py-2 text-xs" :class="o.side === 'buy' ? 'text-market-down' : 'text-market-up'">
-                {{ o.side === 'buy' ? $t('side.buyShort') : $t('side.sellShort') }}
-                <span v-if="o.isLarge" class="ml-1 text-[10px] px-1 bg-warning text-white rounded-sm">{{ $t('admin.orderbook.largeBadge') }}</span>
-              </td>
-              <td class="px-3 py-2 text-right">{{ o.price ? fmtPrice(o.price) : '—' }}</td>
-              <td class="px-3 py-2 text-right">{{ fmtQty(o.quantity - o.filledQty) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
+        <BaseTable
+          :columns="openOrderColumns"
+          :items="openOrderItems"
+          row-key="id"
+          numeric
+          :empty-text="$t('admin.orderbook.noOpen')"
+          panel-class="bg-transparent border-0 rounded-none"
+          table-class="text-sm"
+          table-min-width="640px"
+          :row-class="(row) => row.isLarge ? 'bg-warning/10' : ''"
+        >
+          <template #cell-createdAt="{ row }">
+            <span class="text-text-muted text-xs">{{ fmtDt(row.createdAt) }}</span>
+          </template>
+          <template #cell-owner="{ row }">
+            <div class="text-xs">
+              {{ row.owner?.displayName ?? '—' }}
+              <div class="text-text-muted font-mono">{{ row.userId }}</div>
+            </div>
+          </template>
+          <template #cell-side="{ row }">
+            <span class="text-xs" :class="row.side === 'buy' ? 'text-market-down' : 'text-market-up'">
+              {{ row.side === 'buy' ? $t('side.buyShort') : $t('side.sellShort') }}
+              <span v-if="row.isLarge" class="ml-1 text-[10px] px-1 bg-warning text-white rounded-sm">{{ $t('admin.orderbook.largeBadge') }}</span>
+            </span>
+          </template>
+          <template #cell-price="{ row }">{{ row.price ? fmtPrice(row.price) : '—' }}</template>
+          <template #cell-remaining="{ row }">{{ fmtQty(row.quantity - row.filledQty) }}</template>
+        </BaseTable>
       </section>
     </div>
 

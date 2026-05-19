@@ -90,6 +90,13 @@ function loginMethod(metadata: Record<string, unknown>): string {
   const method = metadata.method
   return typeof method === 'string' ? method : '—'
 }
+
+const loginHistoryColumns = computed(() => [
+  { key: 'timestamp', label: t('trader.settings.security.thLoginTime') },
+  { key: 'metadata', label: t('trader.settings.security.thLoginMethod') },
+  { key: 'ipAddress', label: t('trader.settings.security.thLoginIp') },
+  { key: 'resourceId', label: t('trader.settings.security.thLoginSession') }
+])
 </script>
 
 <template>
@@ -187,29 +194,27 @@ function loginMethod(metadata: Record<string, unknown>): string {
     <!-- Login history -->
     <section class="trader-panel p-6">
       <h2 class="text-lg font-semibold mb-4">{{ $t('trader.settings.security.loginHistoryTitle') }}</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-3 py-2 font-medium">{{ $t('trader.settings.security.thLoginTime') }}</th>
-              <th class="text-left px-3 py-2 font-medium">{{ $t('trader.settings.security.thLoginMethod') }}</th>
-              <th class="text-left px-3 py-2 font-medium">{{ $t('trader.settings.security.thLoginIp') }}</th>
-              <th class="text-left px-3 py-2 font-medium">{{ $t('trader.settings.security.thLoginSession') }}</th>
-            </tr>
-          </thead>
-          <tbody class="num">
-            <tr v-if="loginHistory.length === 0">
-              <td colspan="4" class="px-3 py-6 text-center text-text-muted">{{ $t('trader.settings.security.noLoginHistory') }}</td>
-            </tr>
-            <tr v-for="h in loginHistory" :key="h.id" class="border-b border-border last:border-0">
-              <td class="px-3 py-2 text-text-muted">{{ fmtDtLocal(h.timestamp) }}</td>
-              <td class="px-3 py-2 text-xs">{{ loginMethod(h.metadata) }}</td>
-              <td class="px-3 py-2 text-xs font-mono">{{ h.ipAddress ?? '—' }}</td>
-              <td class="px-3 py-2 text-xs font-mono text-text-muted">{{ h.resourceId }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <BaseTable
+        :columns="loginHistoryColumns"
+        :items="loginHistory"
+        row-key="id"
+        numeric
+        :empty-text="$t('trader.settings.security.noLoginHistory')"
+        panel-class="bg-transparent border-0 rounded-none"
+      >
+        <template #cell-timestamp="{ row }">
+          <span class="text-text-muted">{{ fmtDtLocal(row.timestamp) }}</span>
+        </template>
+        <template #cell-metadata="{ row }">
+          <span class="text-xs">{{ loginMethod(row.metadata) }}</span>
+        </template>
+        <template #cell-ipAddress="{ row }">
+          <span class="text-xs font-mono">{{ row.ipAddress ?? '—' }}</span>
+        </template>
+        <template #cell-resourceId="{ row }">
+          <span class="text-xs font-mono text-text-muted">{{ row.resourceId }}</span>
+        </template>
+      </BaseTable>
     </section>
   </div>
 </template>

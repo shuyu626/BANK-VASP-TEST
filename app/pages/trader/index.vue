@@ -8,6 +8,14 @@ useHead(() => ({ title: t('trader.head.home') }))
 
 const hotPairs = computed(() => [...mockMarketsTwd, ...mockMarkets.slice(0, 4)])
 
+const hotMarketColumns = computed(() => [
+  { key: 'symbol', label: t('trader.markets.th.pair') },
+  { key: 'price', label: t('trader.markets.th.lastPrice'), align: 'right' as const },
+  { key: 'change24h', label: t('trader.markets.th.change24h'), align: 'right' as const },
+  { key: 'high24h', label: t('trader.home.thHigh'), align: 'right' as const },
+  { key: 'low24h', label: t('trader.home.thLow'), align: 'right' as const }
+])
+
 function formatPrice(p: number) {
   return p >= 1000 ? p.toLocaleString('en-US', { maximumFractionDigits: 2 }) : p.toFixed(4)
 }
@@ -37,45 +45,38 @@ function formatPrice(p: number) {
         </NuxtLink>
       </div>
       <div class="trader-panel overflow-x-auto">
-        <table class="w-full min-w-[640px]">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.markets.th.pair') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('trader.markets.th.lastPrice') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('trader.markets.th.change24h') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('trader.home.thHigh') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('trader.home.thLow') }}</th>
-            </tr>
-          </thead>
-          <tbody class="num">
-            <tr
-              v-for="m in hotPairs"
-              :key="m.symbol"
-              class="border-b border-border last:border-0 hover:bg-surface-alt transition cursor-pointer"
-            >
-              <td class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
-                    {{ m.icon }}
-                  </span>
-                  <div>
-                    <div class="font-medium">{{ m.symbol }}</div>
-                    <div class="text-xs text-text-muted">{{ m.name }}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="text-right px-4 py-3">{{ formatPrice(m.price) }}</td>
-              <td
-                class="text-right px-4 py-3 font-medium"
-                :class="m.change24h >= 0 ? 'up' : 'down'"
-              >
-                {{ m.change24h >= 0 ? '+' : '' }}{{ m.change24h.toFixed(2) }}%
-              </td>
-              <td class="text-right px-4 py-3 text-text-muted">{{ formatPrice(m.high24h) }}</td>
-              <td class="text-right px-4 py-3 text-text-muted">{{ formatPrice(m.low24h) }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <BaseTable
+          :columns="hotMarketColumns"
+          :items="hotPairs"
+          row-key="symbol"
+          numeric
+          panel-class="bg-transparent border-0 rounded-none"
+          row-class="hover:bg-surface-alt transition"
+        >
+          <template #cell-symbol="{ row }">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
+                {{ row.icon }}
+              </span>
+              <div>
+                <div class="font-medium">{{ row.symbol }}</div>
+                <div class="text-xs text-text-muted">{{ row.name }}</div>
+              </div>
+            </div>
+          </template>
+          <template #cell-price="{ row }">{{ formatPrice(row.price) }}</template>
+          <template #cell-change24h="{ row }">
+            <span class="font-medium" :class="row.change24h >= 0 ? 'up' : 'down'">
+              {{ row.change24h >= 0 ? '+' : '' }}{{ row.change24h.toFixed(2) }}%
+            </span>
+          </template>
+          <template #cell-high24h="{ row }">
+            <span class="text-text-muted">{{ formatPrice(row.high24h) }}</span>
+          </template>
+          <template #cell-low24h="{ row }">
+            <span class="text-text-muted">{{ formatPrice(row.low24h) }}</span>
+          </template>
+        </BaseTable>
       </div>
     </section>
   </div>

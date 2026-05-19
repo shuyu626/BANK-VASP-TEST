@@ -12,13 +12,19 @@ interface Item {
 
 const { data, errorMessage, refresh } = await useBankResource<{ items: Item[] }>('/api/bank/sar')
 const toast = useToast()
-const expanded = ref<Set<string>>(new Set())
+const sarItems = computed(() => data.value?.items ?? [])
+const expandedReportIds = ref<string[]>([])
 
-function toggle(id: string) {
-  if (expanded.value.has(id)) expanded.value.delete(id)
-  else expanded.value.add(id)
-  expanded.value = new Set(expanded.value)
-}
+const sarColumns = computed(() => [
+  { key: 'expander', label: '', headerClass: 'w-8 text-center', cellClass: 'text-center text-text-muted' },
+  { key: 'createdAt', label: t('bank.sar.th.createdAt') },
+  { key: 'user', label: t('common.label.user') },
+  { key: 'narrativeShort', label: t('bank.sar.th.narrativeShort') },
+  { key: 'alertRef', label: t('bank.sar.th.alertRef') },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'submittedAt', label: t('bank.sar.th.submitTime') },
+  { key: 'action', label: t('common.label.action'), align: 'right' as const }
+])
 
 async function onMark(id: string, status: 'submitted' | 'accepted') {
   try {
@@ -39,86 +45,90 @@ async function onMark(id: string, status: 'submitted' | 'accepted') {
   <div class="space-y-6">
     <BasePageHeader :title="$t('bank.sar.title')" :subtitle="$t('bank.sar.subtitle')" />
 
-    <div class="bank-panel overflow-x-auto">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th class="w-8" />
-            <th>{{ $t('bank.sar.th.createdAt') }}</th>
-            <th>{{ $t('common.label.user') }}</th>
-            <th>{{ $t('bank.sar.th.narrativeShort') }}</th>
-            <th>{{ $t('bank.sar.th.alertRef') }}</th>
-            <th>{{ $t('common.label.status') }}</th>
-            <th>{{ $t('bank.sar.th.submitTime') }}</th>
-            <th>{{ $t('common.label.action') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <BaseTableErrorRow v-if="errorMessage" :colspan="8" :message="errorMessage" @retry="refresh()" />
-          <tr v-else-if="!data || data.items.length === 0">
-            <td colspan="8" class="text-center text-text-muted py-10">{{ $t('bank.sar.empty') }}</td>
-          </tr>
-          <template v-for="it in data?.items ?? []" :key="it.report.id">
-            <tr class="cursor-pointer" @click="toggle(it.report.id)">
-              <td class="text-center text-text-muted">{{ expanded.has(it.report.id) ? '▼' : '▶' }}</td>
-              <td class="num text-xs whitespace-nowrap">{{ fmtDt(it.report.createdAt) }}</td>
-              <td>
-                <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
-                <div class="text-xs text-text-muted font-mono">{{ it.report.userId }}</div>
-              </td>
-              <td class="text-xs max-w-md">{{ it.report.narrative.slice(0, 60) }}{{ it.report.narrative.length > 60 ? '…' : '' }}</td>
-              <td class="font-mono text-xs">{{ it.report.alertId }}</td>
-              <td>
-                <BaseBadge :variant="reportStatusVariant(it.report.status)">{{ it.report.status }}</BaseBadge>
-              </td>
-              <td class="num text-text-muted text-xs">{{ fmtDt(it.report.submittedAt) }}</td>
-              <td class="text-right" @click.stop>
-                <BaseButton
-                  v-if="it.report.status === 'draft' || it.report.status === 'under_review'"
-                  variant="secondary"
-                  size="sm"
-                  class="!border-primary-900 !text-primary-900"
-                  @click="onMark(it.report.id, 'submitted')"
-                >
-                  {{ $t('bank.sar.submitCta') }}
-                </BaseButton>
-                <BaseButton
-                  v-else-if="it.report.status === 'submitted'"
-                  variant="secondary"
-                  size="sm"
-                  class="!border-success !text-success"
-                  @click="onMark(it.report.id, 'accepted')"
-                >
-                  {{ $t('bank.sar.markAccept') }}
-                </BaseButton>
-                <span v-else class="text-xs text-text-muted">—</span>
-              </td>
-            </tr>
-            <tr v-if="expanded.has(it.report.id)">
-              <td colspan="8" class="px-8 py-3 bg-neutral-50 text-xs space-y-3">
-                <div>
-                  <div class="font-semibold mb-1">{{ $t('bank.sar.fullNarrative') }}</div>
-                  <div class="whitespace-pre-wrap leading-relaxed">{{ it.report.narrative }}</div>
-                  <div class="text-text-muted mt-3">{{ t('bank.sar.createdBy', { by: it.report.createdBy }) }}</div>
-                </div>
-                <div class="flex gap-2 items-center pt-2 border-t border-border">
-                  <span class="text-text-muted">{{ $t('bank.sar.exportTitle') }}</span>
-                  <a
-                    :href="`/api/bank/sar/${it.report.id}/export?format=json`"
-                    class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
-                    download
-                  >{{ $t('bank.common.exportJson') }}</a>
-                  <a
-                    :href="`/api/bank/sar/${it.report.id}/export?format=xml`"
-                    class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
-                    download
-                  >{{ $t('bank.common.exportXml') }}</a>
-                </div>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-    </div>
+    <BaseTable
+      :columns="sarColumns"
+      :items="sarItems"
+      :row-key="(row) => row.report.id"
+      :expanded-keys="expandedReportIds"
+      expand-on-row-click
+      :expanded-colspan="8"
+      :error-message="errorMessage"
+      :empty-text="$t('bank.sar.empty')"
+      panel-class="bank-panel"
+      table-class="bank-table"
+      table-min-width="720px"
+      @update:expanded-keys="(keys) => { expandedReportIds = keys as string[] }"
+      @retry="refresh()"
+    >
+      <template #cell-expander="{ row }">
+        {{ expandedReportIds.includes(row.report.id) ? '▼' : '▶' }}
+      </template>
+      <template #cell-createdAt="{ row }">
+        <span class="num text-xs whitespace-nowrap">{{ fmtDt(row.report.createdAt) }}</span>
+      </template>
+      <template #cell-user="{ row }">
+        <div>
+          <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
+          <div class="text-xs text-text-muted font-mono">{{ row.report.userId }}</div>
+        </div>
+      </template>
+      <template #cell-narrativeShort="{ row }">
+        <span class="text-xs max-w-md">{{ row.report.narrative.slice(0, 60) }}{{ row.report.narrative.length > 60 ? '…' : '' }}</span>
+      </template>
+      <template #cell-alertRef="{ row }">
+        <span class="font-mono text-xs">{{ row.report.alertId }}</span>
+      </template>
+      <template #cell-status="{ row }">
+        <BaseBadge :variant="reportStatusVariant(row.report.status)">{{ row.report.status }}</BaseBadge>
+      </template>
+      <template #cell-submittedAt="{ row }">
+        <span class="num text-text-muted text-xs">{{ fmtDt(row.report.submittedAt) }}</span>
+      </template>
+      <template #cell-action="{ row }">
+        <div class="text-right" @click.stop>
+          <BaseButton
+            v-if="row.report.status === 'draft' || row.report.status === 'under_review'"
+            variant="secondary"
+            size="sm"
+            class="!border-primary-900 !text-primary-900"
+            @click="onMark(row.report.id, 'submitted')"
+          >
+            {{ $t('bank.sar.submitCta') }}
+          </BaseButton>
+          <BaseButton
+            v-else-if="row.report.status === 'submitted'"
+            variant="secondary"
+            size="sm"
+            class="!border-success !text-success"
+            @click="onMark(row.report.id, 'accepted')"
+          >
+            {{ $t('bank.sar.markAccept') }}
+          </BaseButton>
+          <span v-else class="text-xs text-text-muted">—</span>
+        </div>
+      </template>
+      <template #row-expanded="{ row }">
+        <div class="-mx-4 -my-3 px-8 py-3 bg-neutral-50 text-xs space-y-3">
+          <div>
+            <div class="font-semibold mb-1">{{ $t('bank.sar.fullNarrative') }}</div>
+            <div class="whitespace-pre-wrap leading-relaxed">{{ row.report.narrative }}</div>
+            <div class="text-text-muted mt-3">{{ t('bank.sar.createdBy', { by: row.report.createdBy }) }}</div>
+          </div>
+          <div class="flex gap-2 items-center pt-2 border-t border-border">
+            <span class="text-text-muted">{{ $t('bank.sar.exportTitle') }}</span>
+            <a
+              :href="`/api/bank/sar/${row.report.id}/export?format=json`"
+              class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
+              download
+            >{{ $t('bank.common.exportJson') }}</a>
+            <a
+              :href="`/api/bank/sar/${row.report.id}/export?format=xml`"
+              class="px-2 py-1 border border-border rounded hover:bg-surface-alt"
+              download
+            >{{ $t('bank.common.exportXml') }}</a>
+          </div>
+        </div>
+      </template>
+    </BaseTable>
   </div>
 </template>

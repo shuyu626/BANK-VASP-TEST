@@ -117,6 +117,15 @@ function statusLabel(s: string) {
   }
   return map[s] ?? s
 }
+
+const pendingWithdrawalColumns = computed(() => [
+  { key: 'submittedAt', label: t('common.label.submittedAt') },
+  { key: 'approvedAt', label: t('common.label.approveTime') },
+  { key: 'completedAt', label: t('common.label.completeTime') },
+  { key: 'amount', label: t('common.label.amount'), align: 'right' as const },
+  { key: 'fee', label: t('common.label.fee'), align: 'right' as const },
+  { key: 'status', label: t('common.label.status') }
+])
 </script>
 
 <template>
@@ -197,33 +206,33 @@ function statusLabel(s: string) {
     <section v-if="pendingWithdrawals.length > 0 || (trustAccount && verifiedBankAccounts.length > 0)">
       <h2 class="text-lg font-semibold mb-3">{{ $t('trader.wallet.withdrawFiat.recordTitle') }}</h2>
       <div class="trader-panel overflow-x-auto">
-        <table v-if="pendingWithdrawals.length > 0" class="w-full text-sm min-w-[640px]">
-          <thead>
-            <tr class="text-xs text-text-muted border-b border-border">
-              <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.submittedAt') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.approveTime') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.completeTime') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.amount') }}</th>
-              <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.fee') }}</th>
-              <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.status') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="w in pendingWithdrawals" :key="w.id" class="border-b border-border last:border-0">
-              <td class="px-4 py-3 num text-text-muted">{{ fmtDt(w.submittedAt) }}</td>
-              <td class="px-4 py-3 num text-text-muted">{{ fmtDt(w.approvedAt) }}</td>
-              <td class="px-4 py-3 num text-text-muted">{{ fmtDt(w.completedAt) }}</td>
-              <td class="px-4 py-3 text-right num">{{ fmtTwd(w.amount) }}</td>
-              <td class="px-4 py-3 text-right num text-text-muted">NT$ {{ w.fee }}</td>
-              <td class="px-4 py-3">
-                <BaseBadge :variant="transferStatusVariant(w.status)" size="sm" :solid="false">
-                  {{ statusLabel(w.status) }}
-                </BaseBadge>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else class="p-8 text-center text-sm text-text-muted">{{ $t('trader.wallet.withdrawFiat.empty') }}</div>
+        <BaseTable
+          :columns="pendingWithdrawalColumns"
+          :items="pendingWithdrawals"
+          row-key="id"
+          numeric
+          :empty-text="$t('trader.wallet.withdrawFiat.empty')"
+          panel-class="bg-transparent border-0 rounded-none"
+        >
+          <template #cell-submittedAt="{ row }">
+            <span class="text-text-muted">{{ fmtDt(row.submittedAt) }}</span>
+          </template>
+          <template #cell-approvedAt="{ row }">
+            <span class="text-text-muted">{{ fmtDt(row.approvedAt) }}</span>
+          </template>
+          <template #cell-completedAt="{ row }">
+            <span class="text-text-muted">{{ fmtDt(row.completedAt) }}</span>
+          </template>
+          <template #cell-amount="{ row }">{{ fmtTwd(row.amount) }}</template>
+          <template #cell-fee="{ row }">
+            <span class="text-text-muted">NT$ {{ row.fee }}</span>
+          </template>
+          <template #cell-status="{ row }">
+            <BaseBadge :variant="transferStatusVariant(row.status)" size="sm" :solid="false">
+              {{ statusLabel(row.status) }}
+            </BaseBadge>
+          </template>
+        </BaseTable>
       </div>
     </section>
 

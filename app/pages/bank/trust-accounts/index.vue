@@ -13,6 +13,19 @@ interface Item {
 }
 
 const { data, errorMessage, refresh } = await useBankResource<{ items: Item[] }>('/api/bank/trust-accounts')
+
+const trustAccountItems = computed(() => data.value?.items ?? [])
+
+const trustAccountColumns = computed(() => [
+  { key: 'user', label: t('bank.trustAccounts.th.user') },
+  { key: 'vAccount', label: t('bank.trustAccounts.th.vAccount') },
+  { key: 'balance', label: t('bank.trustAccounts.th.balance'), align: 'right' as const },
+  { key: 'monthIn', label: t('bank.trustAccounts.th.monthIn'), align: 'right' as const },
+  { key: 'monthOut', label: t('bank.trustAccounts.th.monthOut'), align: 'right' as const },
+  { key: 'risk', label: t('bank.trustAccounts.th.risk') },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'action', label: '', align: 'right' as const }
+])
 </script>
 
 <template>
@@ -23,47 +36,45 @@ const { data, errorMessage, refresh } = await useBankResource<{ items: Item[] }>
       </template>
     </BasePageHeader>
 
-    <div class="bank-panel overflow-x-auto">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th>{{ $t('bank.trustAccounts.th.user') }}</th>
-            <th>{{ $t('bank.trustAccounts.th.vAccount') }}</th>
-            <th class="text-right">{{ $t('bank.trustAccounts.th.balance') }}</th>
-            <th class="text-right">{{ $t('bank.trustAccounts.th.monthIn') }}</th>
-            <th class="text-right">{{ $t('bank.trustAccounts.th.monthOut') }}</th>
-            <th>{{ $t('bank.trustAccounts.th.risk') }}</th>
-            <th>{{ $t('common.label.status') }}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <BaseTableErrorRow v-if="errorMessage" :colspan="8" :message="errorMessage" @retry="refresh()" />
-          <tr v-else-if="!data || data.items.length === 0">
-            <td colspan="8" class="text-center text-text-muted py-10">{{ $t('bank.trustAccounts.empty') }}</td>
-          </tr>
-          <tr v-for="it in data?.items ?? []" :key="it.account.id">
-            <td>
-              <div class="font-medium">{{ it.user.displayName }}</div>
-              <div class="text-xs text-text-muted">{{ it.user.email }}</div>
-            </td>
-            <td class="font-mono num text-xs">{{ it.account.virtualAccountNumber }}</td>
-            <td class="text-right num font-medium">{{ fmtTwd(it.account.balance) }}</td>
-            <td class="text-right num text-text-muted">{{ fmtTwd(it.monthInflow) }}</td>
-            <td class="text-right num text-text-muted">{{ fmtTwd(it.monthOutflow) }}</td>
-            <td>
-              <BaseBadge :variant="riskVariant(it.user.riskLevel)">{{ it.user.riskLevel }}</BaseBadge>
-            </td>
-            <td class="text-xs">
-              <span v-if="it.user.isFrozen" class="text-danger font-semibold">{{ $t('admin.users.frozenYes') }}</span>
-              <span v-else class="text-text-muted">{{ $t('admin.users.frozenNo') }}</span>
-            </td>
-            <td class="text-right">
-              <NuxtLink :to="`/bank/trust-accounts/${it.account.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <BaseTable
+      :columns="trustAccountColumns"
+      :items="trustAccountItems"
+      :row-key="(row) => row.account.id"
+      :empty-text="$t('bank.trustAccounts.empty')"
+      :error-message="errorMessage"
+      panel-class="bank-panel"
+      table-class="bank-table"
+      table-min-width="720px"
+      @retry="refresh()"
+    >
+      <template #cell-user="{ row }">
+        <div>
+          <div class="font-medium">{{ row.user.displayName }}</div>
+          <div class="text-xs text-text-muted">{{ row.user.email }}</div>
+        </div>
+      </template>
+      <template #cell-vAccount="{ row }">
+        <span class="font-mono num text-xs">{{ row.account.virtualAccountNumber }}</span>
+      </template>
+      <template #cell-balance="{ row }">
+        <span class="num font-medium">{{ fmtTwd(row.account.balance) }}</span>
+      </template>
+      <template #cell-monthIn="{ row }">
+        <span class="num text-text-muted">{{ fmtTwd(row.monthInflow) }}</span>
+      </template>
+      <template #cell-monthOut="{ row }">
+        <span class="num text-text-muted">{{ fmtTwd(row.monthOutflow) }}</span>
+      </template>
+      <template #cell-risk="{ row }">
+        <BaseBadge :variant="riskVariant(row.user.riskLevel)">{{ row.user.riskLevel }}</BaseBadge>
+      </template>
+      <template #cell-status="{ row }">
+        <span v-if="row.user.isFrozen" class="text-xs text-danger font-semibold">{{ $t('admin.users.frozenYes') }}</span>
+        <span v-else class="text-xs text-text-muted">{{ $t('admin.users.frozenNo') }}</span>
+      </template>
+      <template #cell-action="{ row }">
+        <NuxtLink :to="`/bank/trust-accounts/${row.account.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
+      </template>
+    </BaseTable>
   </div>
 </template>

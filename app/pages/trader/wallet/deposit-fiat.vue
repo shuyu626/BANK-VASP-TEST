@@ -97,6 +97,13 @@ onMounted(() => {
   if (wallet.hasPendingActivity) polling.start()
 })
 
+const recentDepositColumns = computed(() => [
+  { key: 'submittedAt', label: t('common.label.time') },
+  { key: 'amount', label: t('common.label.amount'), align: 'right' as const },
+  { key: 'status', label: t('common.label.status') },
+  { key: 'bankReference', label: t('trader.wallet.depositFiat.tableRef') }
+])
+
 </script>
 
 <template>
@@ -190,33 +197,28 @@ onMounted(() => {
       <section>
         <h2 class="text-lg font-semibold mb-3">{{ $t('trader.wallet.depositFiat.recentTitle') }}</h2>
         <div class="trader-panel overflow-x-auto">
-          <table v-if="pendingDeposits.length > 0" class="w-full text-sm min-w-[480px]">
-            <thead>
-              <tr class="text-xs text-text-muted border-b border-border">
-                <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.time') }}</th>
-                <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.amount') }}</th>
-                <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.status') }}</th>
-                <th class="text-left px-4 py-3 font-medium">{{ $t('trader.wallet.depositFiat.tableRef') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="d in pendingDeposits"
-                :key="d.id"
-                class="border-b border-border last:border-0"
-              >
-                <td class="px-4 py-3 num text-text-muted">{{ fmtDt(d.submittedAt) }}</td>
-                <td class="px-4 py-3 text-right num">{{ fmtTwd(d.amount) }}</td>
-                <td class="px-4 py-3">
-                  <BaseBadge :variant="transferStatusVariant(d.status)" size="sm" :solid="false">
-                    {{ d.status }}
-                  </BaseBadge>
-                </td>
-                <td class="px-4 py-3 text-xs font-mono text-text-muted">{{ d.bankReference }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="p-8 text-center text-sm text-text-muted">{{ $t('trader.wallet.depositFiat.empty') }}</div>
+          <BaseTable
+            :columns="recentDepositColumns"
+            :items="pendingDeposits"
+            row-key="id"
+            numeric
+            :empty-text="$t('trader.wallet.depositFiat.empty')"
+            panel-class="bg-transparent border-0 rounded-none"
+            table-min-width="480px"
+          >
+            <template #cell-submittedAt="{ row }">
+              <span class="text-text-muted">{{ fmtDt(row.submittedAt) }}</span>
+            </template>
+            <template #cell-amount="{ row }">{{ fmtTwd(row.amount) }}</template>
+            <template #cell-status="{ row }">
+              <BaseBadge :variant="transferStatusVariant(row.status)" size="sm" :solid="false">
+                {{ row.status }}
+              </BaseBadge>
+            </template>
+            <template #cell-bankReference="{ row }">
+              <span class="text-xs font-mono text-text-muted">{{ row.bankReference }}</span>
+            </template>
+          </BaseTable>
         </div>
       </section>
     </template>

@@ -7,35 +7,42 @@ useHead(() => ({ title: t('bank.head.blacklist') }))
 
 const { data, errorMessage, refresh } = await useBankResource<{ entries: BlacklistEntry[] }>('/api/bank/blacklist')
 const entries = computed(() => data.value?.entries ?? [])
+
+const blacklistColumns = computed(() => [
+  { key: 'pattern', label: t('admin.blacklist.thPattern') },
+  { key: 'reason', label: t('admin.blacklist.thReason') },
+  { key: 'source', label: t('admin.blacklist.thSource') },
+  { key: 'createdAt', label: t('admin.blacklist.thCreatedAt') }
+])
 </script>
 
 <template>
   <div class="space-y-6">
     <BasePageHeader :title="$t('bank.blacklist.title')" :subtitle="$t('bank.blacklist.subtitle')" />
 
-    <div class="bank-panel overflow-x-auto">
-      <table class="bank-table">
-        <thead>
-          <tr>
-            <th>{{ $t('admin.blacklist.thPattern') }}</th>
-            <th>{{ $t('admin.blacklist.thReason') }}</th>
-            <th>{{ $t('admin.blacklist.thSource') }}</th>
-            <th>{{ $t('admin.blacklist.thCreatedAt') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <BaseTableErrorRow v-if="errorMessage" :colspan="4" :message="errorMessage" @retry="refresh()" />
-          <tr v-else-if="entries.length === 0">
-            <td colspan="4" class="text-center text-text-muted py-10">{{ $t('admin.blacklist.empty') }}</td>
-          </tr>
-          <tr v-for="e in entries" :key="e.id">
-            <td class="font-mono text-xs break-all max-w-xs">{{ e.pattern }}</td>
-            <td class="text-sm">{{ e.reason }}</td>
-            <td class="text-xs">{{ e.source }}</td>
-            <td class="text-xs text-text-muted">{{ e.createdAt ? fmtDt(e.createdAt) : '—' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <BaseTable
+      :columns="blacklistColumns"
+      :items="entries"
+      row-key="id"
+      :empty-text="$t('admin.blacklist.empty')"
+      :error-message="errorMessage"
+      panel-class="bank-panel"
+      table-class="bank-table"
+      table-min-width="720px"
+      @retry="refresh()"
+    >
+      <template #cell-pattern="{ row }">
+        <span class="font-mono text-xs break-all max-w-xs">{{ row.pattern }}</span>
+      </template>
+      <template #cell-reason="{ row }">
+        <span class="text-sm">{{ row.reason }}</span>
+      </template>
+      <template #cell-source="{ row }">
+        <span class="text-xs">{{ row.source }}</span>
+      </template>
+      <template #cell-createdAt="{ row }">
+        <span class="text-xs text-text-muted">{{ row.createdAt ? fmtDt(row.createdAt) : '—' }}</span>
+      </template>
+    </BaseTable>
   </div>
 </template>

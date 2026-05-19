@@ -9,40 +9,43 @@ const { t } = useI18n()
 function fmt(amount: number): string {
   return amount < 0 ? t('kycTier.customAmount') : formatTwd(amount)
 }
+
+const tierColumns = computed(() => [
+  { key: 'tier', label: t('common.label.tier') },
+  { key: 'dailyDepositTwd', label: t('trader.wallet.tier.dailyDeposit'), align: 'right' as const },
+  { key: 'dailyWithdrawTwd', label: t('trader.wallet.tier.dailyWithdraw'), align: 'right' as const },
+  { key: 'monthlyWithdrawTwd', label: t('trader.wallet.tier.monthlyWithdraw'), align: 'right' as const },
+  { key: 'requirementsKey', label: t('common.label.required') }
+])
+
+const tierRows = computed(() => Object.values(KYC_TIER_LIMITS))
 </script>
 
 <template>
   <section class="trader-panel p-6">
     <h2 class="text-lg font-semibold mb-3">{{ $t('trader.wallet.tier.viewAll').replace('→','') }}</h2>
     <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="text-xs text-text-muted border-b border-border">
-            <th class="text-left px-3 py-2 font-medium">{{ $t('common.label.tier') }}</th>
-            <th class="text-right px-3 py-2 font-medium">{{ $t('trader.wallet.tier.dailyDeposit') }}</th>
-            <th class="text-right px-3 py-2 font-medium">{{ $t('trader.wallet.tier.dailyWithdraw') }}</th>
-            <th class="text-right px-3 py-2 font-medium">{{ $t('trader.wallet.tier.monthlyWithdraw') }}</th>
-            <th class="text-left px-3 py-2 font-medium">{{ $t('common.label.required') }}</th>
-          </tr>
-        </thead>
-        <tbody class="num">
-          <tr
-            v-for="limit in Object.values(KYC_TIER_LIMITS)"
-            :key="limit.tier"
-            class="border-b border-border last:border-0"
-            :class="{ 'bg-primary-500/5': limit.tier === currentTier }"
-          >
-            <td class="px-3 py-2">
-              {{ t(limit.labelKey) }}
-              <span v-if="limit.tier === currentTier" class="ml-2 text-[10px] px-1.5 py-0.5 rounded-sm bg-primary-500/20 text-primary-400 uppercase">{{ $t('common.status.processing') }}</span>
-            </td>
-            <td class="text-right px-3 py-2">{{ fmt(limit.dailyDepositTwd) }}</td>
-            <td class="text-right px-3 py-2">{{ fmt(limit.dailyWithdrawTwd) }}</td>
-            <td class="text-right px-3 py-2">{{ fmt(limit.monthlyWithdrawTwd) }}</td>
-            <td class="px-3 py-2 text-xs text-text-muted">{{ t(limit.requirementsKey) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <BaseTable
+        :columns="tierColumns"
+        :items="tierRows"
+        row-key="tier"
+        numeric
+        panel-class="bg-transparent border-0 rounded-none"
+        :row-class="(row) => row.tier === currentTier ? 'bg-primary-500/5' : ''"
+      >
+        <template #cell-tier="{ row }">
+          <div>
+            {{ t(row.labelKey) }}
+            <span v-if="row.tier === currentTier" class="ml-2 text-[10px] px-1.5 py-0.5 rounded-sm bg-primary-500/20 text-primary-400 uppercase">{{ $t('common.status.processing') }}</span>
+          </div>
+        </template>
+        <template #cell-dailyDepositTwd="{ row }">{{ fmt(row.dailyDepositTwd) }}</template>
+        <template #cell-dailyWithdrawTwd="{ row }">{{ fmt(row.dailyWithdrawTwd) }}</template>
+        <template #cell-monthlyWithdrawTwd="{ row }">{{ fmt(row.monthlyWithdrawTwd) }}</template>
+        <template #cell-requirementsKey="{ row }">
+          <span class="text-xs text-text-muted">{{ t(row.requirementsKey) }}</span>
+        </template>
+      </BaseTable>
     </div>
   </section>
 </template>
