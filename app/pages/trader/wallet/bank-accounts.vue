@@ -94,6 +94,12 @@ async function onRemove(id: string) {
 useUnsavedChanges({
   isDirty: () => !submitting.value && form.accountNumber.length > 0
 })
+
+const { paged: pagedAccounts, bindings: accountBindings } = usePagination({
+  source: () => bankAccounts.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
 </script>
 
 <template>
@@ -136,7 +142,7 @@ useUnsavedChanges({
             <th class="text-right px-6 py-3 font-medium">{{ $t('trader.wallet.bankAccounts.thAction') }}</th>
           </tr>
         </template>
-        <tr v-for="b in bankAccounts" :key="b.id" class="border-b border-border last:border-0">
+        <tr v-for="b in pagedAccounts" :key="b.id" class="border-b border-border last:border-0">
           <td class="px-6 py-3 text-sm">{{ b.bankCode }} · {{ b.bankName }}</td>
           <td class="px-6 py-3 text-sm font-mono num">{{ b.accountNumber }}</td>
           <td class="px-6 py-3 text-sm">{{ b.accountName }}</td>
@@ -158,6 +164,9 @@ useUnsavedChanges({
             <span v-else class="text-text-muted text-xs">—</span>
           </td>
         </tr>
+        <template #footer>
+          <BasePagination v-bind="accountBindings" show-first-button show-last-button />
+        </template>
       </BaseTable>
     </section>
 

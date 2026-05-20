@@ -48,6 +48,8 @@ const kycMatchColumns = computed(() => [
       :columns="kycMatchColumns"
       :items="kycMatchItems"
       :row-key="(row) => row.record.id"
+      paginated
+      :default-page-size="10"
       :empty-text="$t('bank.kycMatch.empty')"
       :error-message="errorMessage"
       panel-class="bank-panel"

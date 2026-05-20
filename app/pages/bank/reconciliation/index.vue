@@ -40,6 +40,11 @@ const reconciliationColumns = computed(() => [
       :items="reconciliationItems"
       row-key="date"
       numeric
+      paginated
+      :default-page-size="10"
+      :page-size-options="[5, 10, 20, 50]"
+      show-first-button
+      show-last-button
       :empty-text="$t('bank.reconciliation.empty')"
       :error-message="errorMessage"
       panel-class="bank-panel"

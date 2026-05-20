@@ -53,6 +53,8 @@ const holdingsColumns = computed(() => [
         :columns="holdingsColumns"
         :items="holdings"
         row-key="symbol"
+        paginated
+        :default-page-size="10"
         numeric
         panel-class="bg-transparent border-0 rounded-none"
         table-min-width=""

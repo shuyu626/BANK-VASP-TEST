@@ -19,6 +19,12 @@ const { data, loading, error, refetch } = useApiResource<{ items: Item[] }>(
 await refetch()
 const items = computed(() => data.value?.items ?? [])
 
+const { paged: pagedItems, bindings: itemsBindings } = usePagination<Item>({
+  source: () => items.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 const tabs = computed<{ value: KycStatus | 'all'; label: string }[]>(() => [
   { value: 'pending', label: t('admin.kyc.tab.pending') },
   { value: 'approved', label: t('admin.kyc.tab.approved') },
@@ -52,7 +58,7 @@ const tabs = computed<{ value: KycStatus | 'all'; label: string }[]>(() => [
           <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
         </tr>
       </template>
-      <tr v-for="it in items" :key="it.record.id" class="border-b border-border last:border-0 hover:bg-surface-alt">
+      <tr v-for="it in pagedItems" :key="it.record.id" class="border-b border-border last:border-0 hover:bg-surface-alt">
         <td class="px-4 py-3 num text-text-muted">{{ fmtDt(it.record.submittedAt) }}</td>
         <td class="px-4 py-3">
           <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
@@ -71,6 +77,9 @@ const tabs = computed<{ value: KycStatus | 'all'; label: string }[]>(() => [
           </NuxtLink>
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="itemsBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
   </div>
 </template>

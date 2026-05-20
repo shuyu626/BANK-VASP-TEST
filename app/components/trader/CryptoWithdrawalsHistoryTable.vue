@@ -31,6 +31,8 @@ async function copyHash(h: string) {
         :columns="historyColumns"
         :items="history"
         row-key="id"
+        paginated
+        :default-page-size="10"
         numeric
         panel-class="bg-transparent border-0 rounded-none"
         :empty-text="$t('trader.withdrawCrypto.empty')"

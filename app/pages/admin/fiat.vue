@@ -26,6 +26,17 @@ async function load() {
 await load()
 watch([tab, statusFilter], load)
 
+const { paged: pagedWithdrawals, bindings: withdrawalsBindings } = usePagination({
+  source: () => withdrawals.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+const { paged: pagedDeposits, bindings: depositsBindings } = usePagination({
+  source: () => deposits.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 const rejectForId = ref<string | null>(null)
 const rejectReason = ref('')
 const holdForId = ref<string | null>(null)
@@ -123,7 +134,7 @@ async function onRelease(id: string) {
           <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
         </tr>
       </template>
-      <tr v-for="it in withdrawals" :key="it.withdrawal.id" class="border-b border-border last:border-0">
+      <tr v-for="it in pagedWithdrawals" :key="it.withdrawal.id" class="border-b border-border last:border-0">
         <td class="px-4 py-3 text-text-muted">{{ fmtDt(it.withdrawal.submittedAt) }}</td>
         <td class="px-4 py-3">
           <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
@@ -149,6 +160,9 @@ async function onRelease(id: string) {
           <span v-else class="text-text-muted text-xs">—</span>
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="withdrawalsBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
 
     <!-- Deposits -->
@@ -172,7 +186,7 @@ async function onRelease(id: string) {
           <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
         </tr>
       </template>
-      <tr v-for="it in deposits" :key="it.deposit.id" class="border-b border-border last:border-0">
+      <tr v-for="it in pagedDeposits" :key="it.deposit.id" class="border-b border-border last:border-0">
         <td class="px-4 py-3 text-text-muted">{{ fmtDt(it.deposit.submittedAt) }}</td>
         <td class="px-4 py-3">
           <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
@@ -206,6 +220,9 @@ async function onRelease(id: string) {
           <span v-if="it.deposit.status !== 'pending' && it.deposit.status !== 'reviewing'" class="text-text-muted text-xs">—</span>
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="depositsBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
 
     <BaseModal v-model="rejectOpen" :title="$t('admin.fiat.rejectModalTitle')">

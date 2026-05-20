@@ -49,6 +49,8 @@ async function onMark(id: string, status: 'submitted' | 'accepted') {
       :columns="ctrColumns"
       :items="ctrItems"
       :row-key="(row) => row.report.id"
+      paginated
+      :default-page-size="10"
       :expanded-keys="expandedReportIds"
       expand-on-row-click
       :expanded-colspan="8"

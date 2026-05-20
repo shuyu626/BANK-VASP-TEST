@@ -83,6 +83,8 @@ const movementColumns = computed(() => [
           :columns="movementColumns"
           :items="data.movements"
           :row-key="(row) => `${row.kind}-${row.id}`"
+          paginated
+          :default-page-size="10"
           numeric
           :empty-text="$t('bank.trustAccounts.detail.noMovements')"
           panel-class="bg-transparent border-0 rounded-none"

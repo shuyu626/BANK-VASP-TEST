@@ -64,6 +64,12 @@ function sortIcon(k: SortKey) {
 }
 
 const emptyText = computed(() => tab.value === 'fav' ? t('trader.markets.emptyFav') : t('trader.markets.emptyMatch'))
+
+const { paged: pagedMarkets, bindings: marketBindings } = usePagination({
+  source: () => filtered.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
 </script>
 
 <template>
@@ -106,7 +112,7 @@ const emptyText = computed(() => tab.value === 'fav' ? t('trader.markets.emptyFa
         </tr>
       </template>
       <tr
-        v-for="m in filtered"
+        v-for="m in pagedMarkets"
         :key="m.symbol"
         class="border-b border-border last:border-0 hover:bg-surface-alt cursor-pointer"
         @click="goTrade(m.symbol)"
@@ -136,6 +142,9 @@ const emptyText = computed(() => tab.value === 'fav' ? t('trader.markets.emptyFa
           {{ fmtPriceAdaptive(m.high24h) }} / {{ fmtPriceAdaptive(m.low24h) }}
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="marketBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
   </div>
 </template>

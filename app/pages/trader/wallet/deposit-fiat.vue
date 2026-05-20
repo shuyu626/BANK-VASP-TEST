@@ -201,6 +201,8 @@ const recentDepositColumns = computed(() => [
             :columns="recentDepositColumns"
             :items="pendingDeposits"
             row-key="id"
+            paginated
+            :default-page-size="10"
             numeric
             :empty-text="$t('trader.wallet.depositFiat.empty')"
             panel-class="bg-transparent border-0 rounded-none"

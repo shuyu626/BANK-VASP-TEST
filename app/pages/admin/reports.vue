@@ -10,6 +10,17 @@ const reviews = useAdminReviewsStore()
 const { ctrs, sars, loading, error } = storeToRefs(reviews)
 await reviews.loadReports()
 
+const { paged: pagedCtrs, bindings: ctrBindings } = usePagination({
+  source: () => ctrs.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+const { paged: pagedSars, bindings: sarBindings } = usePagination({
+  source: () => sars.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 type Tab = 'ctr' | 'sar'
 const tab = ref<Tab>('ctr')
 const expanded = ref<Set<string>>(new Set())
@@ -72,7 +83,7 @@ function truncate(s: string, len: number) {
           <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
         </tr>
       </template>
-      <tr v-for="it in ctrs" :key="it.report.id" class="border-b border-border last:border-0">
+      <tr v-for="it in pagedCtrs" :key="it.report.id" class="border-b border-border last:border-0">
         <td class="px-4 py-3">{{ it.report.reportDate }}</td>
         <td class="px-4 py-3">
           <div class="font-medium">{{ it.user?.displayName ?? '—' }}</div>
@@ -98,6 +109,9 @@ function truncate(s: string, len: number) {
           <span v-else class="text-xs text-text-muted">{{ fmtDt(it.report.submittedAt) }}</span>
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="ctrBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
 
     <!-- SAR -->
@@ -121,7 +135,7 @@ function truncate(s: string, len: number) {
           <th class="text-right px-4 py-3 font-medium">{{ $t('common.label.action') }}</th>
         </tr>
       </template>
-      <template v-for="it in sars" :key="it.report.id">
+      <template v-for="it in pagedSars" :key="it.report.id">
         <tr class="border-b border-border hover:bg-surface-alt">
           <td class="px-3 py-2 text-center cursor-pointer text-text-muted" @click="toggle(it.report.id)">
             {{ expanded.has(it.report.id) ? '▼' : '▶' }}
@@ -157,6 +171,9 @@ function truncate(s: string, len: number) {
             <div class="text-text-muted mt-2">{{ $t('admin.reports.alertId') }} <span class="font-mono">{{ it.report.alertId }}</span> · {{ $t('admin.reports.createdBy') }} <span class="font-mono">{{ it.report.createdBy }}</span></div>
           </td>
         </tr>
+      </template>
+      <template #footer>
+        <BasePagination v-bind="sarBindings" show-first-button show-last-button />
       </template>
     </BaseTable>
   </div>

@@ -81,6 +81,8 @@ const recentReportColumns = computed(() => [
         :columns="recentReportColumns"
         :items="data.recent"
         :row-key="(row) => `${row.kind}-${row.id}`"
+        paginated
+        :default-page-size="10"
         numeric
         :empty-text="$t('bank.regulator.empty')"
         panel-class="bank-panel"

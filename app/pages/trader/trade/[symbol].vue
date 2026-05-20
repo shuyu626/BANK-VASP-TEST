@@ -228,6 +228,8 @@ watch(() => orders.orders.length, () => { /* no-op keep reactive */ })
           :columns="myOpenOrderColumns"
           :items="myOpenOnSymbol"
           row-key="id"
+          paginated
+          :default-page-size="10"
           numeric
           panel-class="bg-transparent border-0 rounded-none"
           table-class="text-xs"

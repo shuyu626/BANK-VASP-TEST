@@ -24,6 +24,12 @@ async function load() {
 await load()
 watch([statusTab, severity, type], load)
 
+const { paged: pagedAlerts, bindings: alertBindings } = usePagination({
+  source: () => alerts.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 const statusTabs = computed<{ value: 'open' | 'resolved' | 'all'; label: string }[]>(() => [
   { value: 'open', label: t('admin.risk.tab.open') },
   { value: 'resolved', label: t('admin.risk.tab.resolved') },
@@ -89,7 +95,7 @@ const statusTabs = computed<{ value: 'open' | 'resolved' | 'all'; label: string 
           <th class="text-right px-4 py-3 font-medium" />
         </tr>
       </template>
-      <tr v-for="it in alerts" :key="it.alert.id" class="border-b border-border last:border-0 hover:bg-surface-alt">
+      <tr v-for="it in pagedAlerts" :key="it.alert.id" class="border-b border-border last:border-0 hover:bg-surface-alt">
         <td class="px-4 py-3 num text-text-muted whitespace-nowrap">{{ fmtDt(it.alert.createdAt) }}</td>
         <td class="px-4 py-3">
           <BaseBadge :variant="riskVariant(it.alert.severity)">{{ it.alert.severity }}</BaseBadge>
@@ -111,6 +117,9 @@ const statusTabs = computed<{ value: 'open' | 'resolved' | 'all'; label: string 
           </NuxtLink>
         </td>
       </tr>
+      <template #footer>
+        <BasePagination v-bind="alertBindings" show-first-button show-last-button />
+      </template>
     </BaseTable>
   </div>
 </template>

@@ -18,6 +18,12 @@ const { data, loading, error: listError, refetch } = useApiResource<{ entries: B
 await refetch()
 const entries = computed(() => data.value?.entries ?? [])
 
+const { paged: pagedEntries, bindings: entriesBindings } = usePagination<BlacklistEntry>({
+  source: () => entries.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 const form = reactive<AddBlacklistInput>({
   pattern: '',
   reason: '',
@@ -131,7 +137,7 @@ function isDynamic(e: BlacklistEntry): boolean {
             <th class="text-right px-4 py-3 font-medium">{{ $t('admin.blacklist.thAction') }}</th>
           </tr>
         </template>
-        <tr v-for="e in entries" :key="e.id" class="border-b border-border last:border-0">
+        <tr v-for="e in pagedEntries" :key="e.id" class="border-b border-border last:border-0">
           <td class="px-4 py-3 font-mono text-xs break-all max-w-xs">{{ e.pattern }}</td>
           <td class="px-4 py-3 text-sm">{{ e.reason }}</td>
           <td class="px-4 py-3 text-xs">{{ e.source }}</td>
@@ -154,6 +160,9 @@ function isDynamic(e: BlacklistEntry): boolean {
             <span v-else class="text-text-muted text-xs">—</span>
           </td>
         </tr>
+        <template #footer>
+          <BasePagination v-bind="entriesBindings" show-first-button show-last-button />
+        </template>
       </BaseTable>
     </section>
   </div>

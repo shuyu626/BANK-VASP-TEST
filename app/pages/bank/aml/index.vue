@@ -66,6 +66,8 @@ const amlColumns = computed(() => [
       :columns="amlColumns"
       :items="amlItems"
       :row-key="(row) => row.alert.id"
+      paginated
+      :default-page-size="10"
       :empty-text="$t('bank.aml.empty')"
       :error-message="errorMessage"
       panel-class="bank-panel"

@@ -40,6 +40,8 @@ const trustAccountColumns = computed(() => [
       :columns="trustAccountColumns"
       :items="trustAccountItems"
       :row-key="(row) => row.account.id"
+      paginated
+      :default-page-size="10"
       :empty-text="$t('bank.trustAccounts.empty')"
       :error-message="errorMessage"
       panel-class="bank-panel"

@@ -121,6 +121,8 @@ const apiColumns = computed<TableColumn[]>(() => [
           :columns="apiColumns"
           :items="apiKeys"
           row-key="id"
+          paginated
+          :default-page-size="10"
           :empty-text="$t('trader.settings.apiKeys.noKeys')"
           panel-class=""
           min-height="140px"

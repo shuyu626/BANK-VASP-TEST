@@ -198,6 +198,8 @@ const loginHistoryColumns = computed(() => [
         :columns="loginHistoryColumns"
         :items="loginHistory"
         row-key="id"
+        paginated
+        :default-page-size="10"
         numeric
         :empty-text="$t('trader.settings.security.noLoginHistory')"
         panel-class="bg-transparent border-0 rounded-none"

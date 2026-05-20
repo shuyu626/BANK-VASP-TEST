@@ -81,6 +81,8 @@ const reconciliationColumns = computed(() => [
       :columns="reconciliationColumns"
       :items="data.rows"
       :row-key="(row) => `${row.kind}-${row.id}`"
+      paginated
+      :default-page-size="10"
       numeric
       :empty-text="$t('bank.reconciliation.detail.empty')"
       panel-class="bank-panel"

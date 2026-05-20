@@ -196,7 +196,7 @@ function onTabBar(v: Tab | 'trades') {
         row-key="id"
         paginated
         :default-page-size="20"
-        :page-size-options="[10, 20, 50, 100]"
+        :page-size-options="[5, 10, 20, 50]"
         :empty-text="emptyText"
         panel-class="trader-panel overflow-hidden"
         numeric

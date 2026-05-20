@@ -204,6 +204,8 @@ const recentOrderColumns = computed(() => [
           :columns="holdingsColumns"
           :items="data.holdings"
           row-key="symbol"
+          paginated
+          :default-page-size="10"
           numeric
           panel-class="bg-transparent border-0 rounded-none"
           table-class="text-sm"
@@ -226,6 +228,8 @@ const recentOrderColumns = computed(() => [
           :columns="recentOrderColumns"
           :items="data.recentOrders"
           row-key="id"
+          paginated
+          :default-page-size="10"
           numeric
           panel-class="bg-transparent border-0 rounded-none"
           table-class="text-sm"

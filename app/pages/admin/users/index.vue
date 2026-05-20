@@ -27,8 +27,8 @@ await refetch()
 const users = computed(() => data.value?.users ?? [])
 const { paged, bindings } = usePagination<User>({
   source: () => users.value,
-  defaultPageSize: 20,
-  pageSizeOptions: [20, 50, 100]
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50]
 })
 </script>
 
@@ -109,7 +109,7 @@ const { paged, bindings } = usePagination<User>({
         </td>
       </tr>
       <template #footer>
-        <BasePagination v-bind="bindings" />
+        <BasePagination v-bind="bindings" show-first-button show-last-button />
       </template>
     </BaseTable>
   </div>

@@ -210,6 +210,8 @@ const pendingWithdrawalColumns = computed(() => [
           :columns="pendingWithdrawalColumns"
           :items="pendingWithdrawals"
           row-key="id"
+          paginated
+          :default-page-size="10"
           numeric
           :empty-text="$t('trader.wallet.withdrawFiat.empty')"
           panel-class="bg-transparent border-0 rounded-none"

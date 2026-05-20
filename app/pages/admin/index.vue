@@ -15,6 +15,13 @@ const { data, refresh } = await useFetch<DashboardData>('/api/admin/dashboard', 
   headers: ssrCookieHeaders()
 })
 
+const recentActivity = computed<AuditLog[]>(() => data.value?.recentActivity ?? [])
+const { paged: pagedActivity, bindings: activityBindings } = usePagination<AuditLog>({
+  source: () => recentActivity.value,
+  defaultPageSize: 10,
+  pageSizeOptions: [5, 10, 20, 50],
+})
+
 const roleColour: Record<string, string> = {
   user: 'bg-neutral-500/20 text-neutral-600',
   system: 'bg-info/20 text-info',
@@ -65,7 +72,7 @@ const roleColour: Record<string, string> = {
 
     <section>
       <h2 class="text-base font-semibold mb-3 text-neutral-900">{{ $t('admin.dashboard.recentActivity') }}</h2>
-      <BaseTable :colspan="5" :empty="data.recentActivity.length === 0" :empty-text="$t('admin.dashboard.noActivity')">
+      <BaseTable :colspan="5" :empty="recentActivity.length === 0" :empty-text="$t('admin.dashboard.noActivity')">
         <template #head>
           <tr class="text-xs text-text-muted border-b border-border">
             <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.time') }}</th>
@@ -75,7 +82,7 @@ const roleColour: Record<string, string> = {
             <th class="text-left px-4 py-3 font-medium">{{ $t('common.label.resource') }}</th>
           </tr>
         </template>
-        <tr v-for="a in data.recentActivity" :key="a.id" class="border-b border-border last:border-0">
+        <tr v-for="a in pagedActivity" :key="a.id" class="border-b border-border last:border-0">
           <td class="px-4 py-3 num text-text-muted whitespace-nowrap">{{ fmtDt(a.timestamp, 'short') }}</td>
           <td class="px-4 py-3">
             <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm" :class="roleColour[a.actorRole] ?? 'bg-neutral-300'">
@@ -86,6 +93,9 @@ const roleColour: Record<string, string> = {
           <td class="px-4 py-3">{{ a.action }}</td>
           <td class="px-4 py-3 text-xs text-text-muted">{{ a.resourceType }}:{{ a.resourceId }}</td>
         </tr>
+        <template #footer>
+          <BasePagination v-bind="activityBindings" show-first-button show-last-button />
+        </template>
       </BaseTable>
     </section>
   </div>

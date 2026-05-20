@@ -24,6 +24,8 @@ const blacklistColumns = computed(() => [
       :columns="blacklistColumns"
       :items="entries"
       row-key="id"
+      paginated
+      :default-page-size="10"
       :empty-text="$t('admin.blacklist.empty')"
       :error-message="errorMessage"
       panel-class="bank-panel"
