@@ -288,11 +288,23 @@
       "retry": "Reload"
     },
     "pagination": {
+      "first": "First",
       "prev": "Prev",
       "next": "Next",
+      "last": "Last",
       "perPage": "{count} / page",
       "range": "{start}–{end} of {total}",
-      "totalEmpty": "0 records"
+      "totalEmpty": "0 records",
+      "aria": {
+        "nav": "Pagination navigation",
+        "first": "Go to first page",
+        "prev": "Go to previous page",
+        "next": "Go to next page",
+        "last": "Go to last page",
+        "goto": "Go to page {page}",
+        "current": "Page {page}, current page",
+        "pageSize": "Items per page"
+      }
     },
     "orderForm": {
       "buyAction": "Buy {base}",
