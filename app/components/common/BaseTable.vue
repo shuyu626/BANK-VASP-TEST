@@ -30,10 +30,18 @@ const props = withDefaults(defineProps<{
   paginated?: boolean
   /** 預設每頁筆數，預設 20 */
   defaultPageSize?: number
-  /** 每頁筆數選項，預設 [10, 20, 50, 100] */
+  /** 每頁筆數選項，預設 [5, 10, 20, 50] */
   pageSizeOptions?: number[]
   /** Pagination footer 上是否顯示「共 N 筆」（傳入 BasePagination）*/
   showTotal?: boolean
+  /** 分頁頭尾固定顯示的頁數，傳給 BasePagination，預設 1 */
+  paginationBoundaryCount?: number
+  /** 分頁當前頁兩側顯示的頁數，傳給 BasePagination，預設 1 */
+  paginationSiblingCount?: number
+  /** 是否顯示「首頁」按鈕 */
+  showFirstButton?: boolean
+  /** 是否顯示「尾頁」按鈕 */
+  showLastButton?: boolean
 
   // ─── 以下是舊 props，保留給沒走 declarative 的 caller ───
   /** 是否顯示空狀態（呼叫方判斷 items.length === 0）。declarative 模式下會自動推導 */
@@ -77,8 +85,12 @@ const props = withDefaults(defineProps<{
 }>(), {
   paginated: false,
   defaultPageSize: 20,
-  pageSizeOptions: () => [10, 20, 50, 100],
+  pageSizeOptions: () => [5, 10, 20, 50],
   showTotal: true,
+  paginationBoundaryCount: 1,
+  paginationSiblingCount: 1,
+  showFirstButton: false,
+  showLastButton: false,
   panelClass: 'bg-surface border border-border rounded overflow-hidden',
   emptyText: '',
   loading: false,
@@ -86,7 +98,7 @@ const props = withDefaults(defineProps<{
   numeric: false,
   footerBordered: true,
   skeletonRows: 0,
-  minHeight: '300px',
+  minHeight: '',
   tableClass: '',
   tableMinWidth: '640px',
   rowClass: undefined,
@@ -372,6 +384,10 @@ defineExpose({
         :total="total"
         :page-size-options="pageSizeOptions"
         :show-total="showTotal"
+        :boundary-count="paginationBoundaryCount"
+        :sibling-count="paginationSiblingCount"
+        :show-first-button="showFirstButton"
+        :show-last-button="showLastButton"
         @update:page="(v) => (page = v)"
         @update:pageSize="(v) => { pageSize = v; page = 1 }"
       />
