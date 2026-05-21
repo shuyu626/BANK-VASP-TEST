@@ -287,6 +287,21 @@
       "title": "Failed to load",
       "retry": "Reload"
     },
+    "breadcrumb": {
+      "aria": {
+        "nav": "Breadcrumb"
+      },
+      "label": {
+        "depositFiat": "Deposit TWD",
+        "withdrawFiat": "Withdraw TWD",
+        "withdrawCrypto": "Withdraw crypto",
+        "trades": "Trade history",
+        "profile": "Profile",
+        "security": "Security",
+        "preferences": "Preferences",
+        "apiKeys": "API keys"
+      }
+    },
     "pagination": {
       "first": "First",
       "prev": "Prev",

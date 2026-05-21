@@ -3,6 +3,8 @@ const { t } = useI18n()
 const route = useRoute()
 const mobileNavOpen = ref(false)
 
+const breadcrumb = useRouteBreadcrumb()
+
 const nav = computed(() => [
   { label: t('bank.nav.dashboard'), to: '/bank' },
   { label: t('bank.nav.trustAccounts'), to: '/bank/trust-accounts' },
@@ -111,6 +113,7 @@ onBeforeUnmount(() => {
     </Teleport>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <BaseBreadcrumb v-if="breadcrumb.length" :items="breadcrumb" class="mb-6" />
       <slot />
     </main>
     <BaseToastHost />

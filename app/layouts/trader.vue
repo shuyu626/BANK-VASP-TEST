@@ -13,6 +13,8 @@ const { t } = useI18n()
 
 const { prefs } = useTraderPrefs()
 
+const breadcrumb = useRouteBreadcrumb()
+
 const TRADER_IDLE_MS = 30 * 60 * 1000
 useIdleLogout({
   timeoutMs: TRADER_IDLE_MS,
@@ -265,6 +267,7 @@ onBeforeUnmount(() => {
     </Teleport>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <BaseBreadcrumb v-if="breadcrumb.length" :items="breadcrumb" class="mb-6" />
       <slot />
     </main>
     <BaseToastHost />

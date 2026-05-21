@@ -55,6 +55,8 @@ async function onLogout() {
   router.push('/admin/login')
 }
 
+const breadcrumb = useRouteBreadcrumb()
+
 // Sidebar 收合：mobile 為抽屜（off-canvas），desktop 可改為窄版（icon-only）
 const mobileSidebarOpen = ref(false)
 const desktopCollapsed = ref(false)
@@ -207,6 +209,7 @@ onBeforeUnmount(() => {
     </Teleport>
 
     <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-x-auto">
+      <BaseBreadcrumb v-if="breadcrumb.length" :items="breadcrumb" class="mb-6" />
       <slot />
     </main>
     </div>

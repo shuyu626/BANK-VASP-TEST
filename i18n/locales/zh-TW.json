@@ -287,6 +287,21 @@
       "title": "載入失敗",
       "retry": "重新載入"
     },
+    "breadcrumb": {
+      "aria": {
+        "nav": "頁面路徑導覽"
+      },
+      "label": {
+        "depositFiat": "台幣入金",
+        "withdrawFiat": "台幣出金",
+        "withdrawCrypto": "加密貨幣提領",
+        "trades": "成交紀錄",
+        "profile": "個人資料",
+        "security": "安全性",
+        "preferences": "偏好",
+        "apiKeys": "API Keys"
+      }
+    },
     "pagination": {
       "first": "首頁",
       "prev": "上一頁",
