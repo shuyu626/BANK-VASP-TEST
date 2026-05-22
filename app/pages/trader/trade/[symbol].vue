@@ -248,7 +248,7 @@ watch(() => orders.orders.length, () => { /* no-op keep reactive */ })
             <span class="text-text-muted">{{ fmtOrderQty(row.filledQty) }}</span>
           </template>
           <template #cell-actions="{ row }">
-            <BaseButton variant="secondary" size="sm" class="!text-danger" @click="cancelMy(row.id)">
+            <BaseButton variant="secondary" size="sm" tone="danger" @click="cancelMy(row.id)">
               {{ $t('trader.orders.cancelCta') }}
             </BaseButton>
           </template>

@@ -147,7 +147,7 @@ const apiColumns = computed<TableColumn[]>(() => [
             <span class="text-xs text-text-muted">{{ fmtDtLocal(row.createdAt) }}</span>
           </template>
           <template #cell-actions="{ row }">
-            <BaseButton variant="secondary" size="sm" class="!text-danger" @click="onDelete(row.id)">
+            <BaseButton variant="secondary" size="sm" tone="danger" @click="onDelete(row.id)">
               {{ $t('trader.settings.apiKeys.deleteCta') }}
             </BaseButton>
           </template>

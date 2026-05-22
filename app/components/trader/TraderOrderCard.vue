@@ -73,7 +73,7 @@ const notionalText = computed(() => {
         variant="secondary"
         size="sm"
         block
-        class="!text-danger"
+        tone="danger"
         @click="emit('cancel', order.id)"
       >
         {{ $t('trader.orders.cancelCta') }}

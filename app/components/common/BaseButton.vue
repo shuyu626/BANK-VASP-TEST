@@ -1,13 +1,13 @@
-<script setup lang="ts">
-import { resolveComponent } from 'vue'
+<script lang="ts">
 import type { RouteLocationRaw } from 'vue-router'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link'
-type Size = 'sm' | 'md' | 'lg'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link'
+export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonTone = 'danger' | 'warning' | 'success'
 
-const props = withDefaults(defineProps<{
-  variant?: Variant
-  size?: Size
+export interface ButtonProps {
+  variant?: ButtonVariant
+  size?: ButtonSize
   /** 撐滿父層寬度 */
   block?: boolean
   /** loading 狀態：顯示 spinner 並 disabled */
@@ -17,18 +17,26 @@ const props = withDefaults(defineProps<{
   /** 提供 to 時改用 NuxtLink；提供 href 時改用 <a> */
   to?: RouteLocationRaw
   href?: string
-  /** a tag 才會生效 */
+  /** a tag 才會生效。target="_blank" 時自動補 rel="noopener noreferrer" */
   target?: string
   rel?: string
-}>(), {
+  /**
+   * 覆寫 variant 預設顏色，保留視覺結構：
+   * primary 染 bg、secondary/ghost/link 染 text。
+   * 用於灰底紅字、黃色 CTA 等 variant 表達不出的語意搭配。
+   */
+  tone?: ButtonTone
+}
+</script>
+
+<script setup lang="ts">
+import { resolveComponent } from 'vue'
+
+const props = withDefaults(defineProps<ButtonProps>(), {
   variant: 'primary',
   size: 'md',
   type: 'button'
 })
-
-const emit = defineEmits<{
-  click: [event: MouseEvent]
-}>()
 
 // NuxtLink 是 Nuxt 全域註冊元件，但 <component :is="'NuxtLink'"> 字串解析在某些情境不可靠，
 // 改成 resolveComponent 拿到真正的元件 reference 才能保證渲染為 <a> 而非無效標籤。
@@ -43,27 +51,60 @@ const tag = computed(() => {
 })
 const isLink = computed(() => props.to !== undefined || props.href !== undefined)
 
+// target="_blank" 沒顯式 rel 時補上 noopener noreferrer，防 window.opener 釣魚
+const computedRel = computed(() => {
+  if (!props.href) return undefined
+  if (props.rel !== undefined) return props.rel
+  if (props.target === '_blank') return 'noopener noreferrer'
+  return undefined
+})
+
 const sizeClass = computed(() => ({
-  sm: 'text-xs px-3 py-1.5 gap-1.5',
-  md: 'text-sm px-4 py-2 gap-2',
-  lg: 'text-base px-5 py-2.5 gap-2'
+  sm: 'text-xs px-3 py-1.5',
+  md: 'text-sm px-4 py-2',
+  lg: 'text-base px-5 py-2.5'
 }[props.size]))
 
-const variantClass = computed(() => ({
-  primary: 'app-btn--primary bg-brand text-white border border-transparent hover:opacity-90',
-  secondary: 'bg-surface text-text border border-border hover:bg-surface-alt',
-  ghost: 'bg-transparent text-text-muted hover:text-text hover:bg-surface-alt border border-transparent',
-  danger: 'bg-danger text-white border border-transparent hover:opacity-90',
-  link: 'bg-transparent text-brand hover:underline px-0 py-0 border-0'
-}[props.variant]))
+const sizeGapClass = computed(() => ({
+  sm: 'gap-1.5',
+  md: 'gap-2',
+  lg: 'gap-2'
+}[props.size]))
 
+const TONE_BG: Record<ButtonTone, string> = {
+  danger: 'bg-danger',
+  warning: 'bg-warning',
+  success: 'bg-success'
+}
+const TONE_TEXT: Record<ButtonTone, string> = {
+  danger: 'text-danger',
+  warning: 'text-warning',
+  success: 'text-success'
+}
+
+const variantClass = computed(() => {
+  const t = props.tone
+  switch (props.variant) {
+    case 'primary':
+      return `app-btn--primary ${t ? TONE_BG[t] : 'bg-brand'} text-white border border-transparent hover:opacity-90`
+    case 'secondary':
+      return `bg-surface ${t ? TONE_TEXT[t] : 'text-text'} border border-border hover:bg-surface-alt`
+    case 'ghost':
+      return `bg-transparent ${t ? TONE_TEXT[t] : 'text-text-muted hover:text-text'} hover:bg-surface-alt border border-transparent`
+    case 'danger':
+      return 'bg-danger text-white border border-transparent hover:opacity-90'
+    case 'link':
+      return `bg-transparent ${t ? TONE_TEXT[t] : 'text-brand'} hover:underline px-0 py-0 border-0`
+  }
+})
+
+// 不 emit 'click'；caller 的 @click 透過 attrs fallthrough 自動掛到 root。
+// onClick 只負責 disabled/loading 時阻擋（含同元素其他 listener，例如父層 @click）。
 function onClick(e: MouseEvent) {
   if (isDisabled.value) {
     e.preventDefault()
-    e.stopPropagation()
-    return
+    e.stopImmediatePropagation()
   }
-  emit('click', e)
 }
 </script>
 
@@ -73,12 +114,13 @@ function onClick(e: MouseEvent) {
     :to="props.to"
     :href="props.href"
     :target="props.href ? target : undefined"
-    :rel="props.href ? rel : undefined"
+    :rel="computedRel"
     :type="isLink ? undefined : type"
     :disabled="isLink ? undefined : isDisabled"
+    :tabindex="isLink && isDisabled ? -1 : undefined"
     :aria-disabled="isDisabled || undefined"
     :aria-busy="loading || undefined"
-    class="app-btn inline-flex items-center justify-center font-medium rounded-md transition select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+    class="app-btn relative inline-flex items-center justify-center font-medium rounded-md transition select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
     :class="[
       variantClass,
       variant !== 'link' ? sizeClass : '',
@@ -87,10 +129,21 @@ function onClick(e: MouseEvent) {
     ]"
     @click="onClick"
   >
-    <span v-if="loading" class="app-btn__spinner" aria-hidden="true" />
-    <slot v-if="$slots.prefix" name="prefix" />
-    <slot />
-    <slot v-if="$slots.suffix" name="suffix" />
+    <span
+      v-if="loading"
+      class="absolute inset-0 flex items-center justify-center pointer-events-none"
+      aria-hidden="true"
+    >
+      <span class="app-btn__spinner" />
+    </span>
+    <span
+      class="inline-flex items-center"
+      :class="[variant !== 'link' ? sizeGapClass : '', loading ? 'invisible' : '']"
+    >
+      <slot v-if="$slots.prefix" name="prefix" />
+      <slot />
+      <slot v-if="$slots.suffix" name="suffix" />
+    </span>
   </component>
 </template>
 

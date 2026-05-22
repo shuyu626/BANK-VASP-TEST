@@ -152,7 +152,8 @@ async function onRelease(id: string) {
             v-if="it.withdrawal.status === 'pending' || it.withdrawal.status === 'approved'"
             variant="secondary"
             size="sm"
-            class="!border-danger !text-danger"
+            tone="danger"
+            class="border-danger"
             @click="rejectForId = it.withdrawal.id"
           >
             {{ $t('admin.fiat.rejectCta') }}
@@ -212,7 +213,8 @@ async function onRelease(id: string) {
             v-if="it.deposit.status === 'reviewing'"
             variant="secondary"
             size="sm"
-            class="!border-success !text-success"
+            tone="success"
+            class="border-success"
             @click="onRelease(it.deposit.id)"
           >
             {{ $t('admin.fiat.releaseCta') }}
@@ -252,7 +254,7 @@ async function onRelease(id: string) {
       />
       <template #footer="{ close }">
         <BaseButton variant="secondary" block @click="close">{{ $t('common.action.cancel') }}</BaseButton>
-        <BaseButton variant="primary" block class="!bg-warning" @click="onHold">{{ $t('admin.fiat.holdConfirm') }}</BaseButton>
+        <BaseButton variant="primary" tone="warning" block @click="onHold">{{ $t('admin.fiat.holdConfirm') }}</BaseButton>
       </template>
     </BaseModal>
   </div>

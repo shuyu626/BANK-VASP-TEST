@@ -105,7 +105,8 @@ const recentOrderColumns = computed(() => [
         <BaseButton
           variant="secondary"
           size="sm"
-          :class="data.user.isFrozen ? '!border-success !text-success' : '!border-danger !text-danger'"
+          :tone="data.user.isFrozen ? 'success' : 'danger'"
+          :class="data.user.isFrozen ? 'border-success' : 'border-danger'"
           :disabled="freezing"
           @click="openFreezeModal"
         >

@@ -156,7 +156,7 @@ const { paged: pagedAccounts, bindings: accountBindings } = usePagination({
               v-if="!b.isVerified"
               variant="secondary"
               size="sm"
-              class="!text-danger"
+              tone="danger"
               @click="onRemove(b.id)"
             >
               {{ $t('trader.wallet.bankAccounts.removeCta') }}

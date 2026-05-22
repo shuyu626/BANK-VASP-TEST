@@ -101,7 +101,8 @@ async function onMark(id: string, status: 'submitted' | 'accepted') {
             v-else-if="row.report.status === 'submitted'"
             variant="secondary"
             size="sm"
-            class="!border-success !text-success"
+            tone="success"
+            class="border-success"
             @click="onMark(row.report.id, 'accepted')"
           >
             {{ $t('bank.sar.markAccept') }}

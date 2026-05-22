@@ -152,7 +152,7 @@ function isDynamic(e: BlacklistEntry): boolean {
               v-if="isDynamic(e)"
               variant="secondary"
               size="sm"
-              class="!text-danger"
+              tone="danger"
               @click="onRemove(e.id)"
             >
               {{ $t('admin.blacklist.removeCta') }}

@@ -177,7 +177,8 @@ function onTabBar(v: Tab | 'trades') {
           v-if="tab === 'open' && cancelableInView.length > 0"
           variant="secondary"
           size="sm"
-          class="!text-danger shrink-0"
+          tone="danger"
+          class="shrink-0"
           @click="onCancelAll"
         >
           {{ $t('trader.orders.cancelAll', { count: cancelableInView.length }) }}
@@ -238,7 +239,7 @@ function onTabBar(v: Tab | 'trades') {
               v-if="vmOf(row).cancelable"
               variant="secondary"
               size="sm"
-              class="!text-danger"
+              tone="danger"
               @click="onCancel(row.id)"
             >
               {{ $t('trader.orders.cancelCta') }}
