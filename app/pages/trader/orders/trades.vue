@@ -12,7 +12,6 @@ const orders = useOrdersStore()
 const session = useSessionStore()
 const { trades } = storeToRefs(orders)
 await orders.loadTrades()
-const router = useRouter()
 
 function sideFor(tr: { buyerId: string; sellerId: string }) {
   return tr.buyerId === session.user?.id ? 'buy' : 'sell'
@@ -61,7 +60,7 @@ function exportCsv() {
   <div class="space-y-5">
     <BasePageHeader :title="$t('trader.trades.title')" :subtitle="$t('trader.trades.subtitle')" weight="bold">
       <template #actions>
-        <BaseButton variant="ghost" size="sm" @click="router.push('/trader/orders')">
+        <BaseButton to="/trader/orders" variant="ghost" size="sm">
           {{ $t('trader.trades.back') }}
         </BaseButton>
         <BaseButton variant="secondary" size="sm" :disabled="trades.length === 0" @click="exportCsv">
