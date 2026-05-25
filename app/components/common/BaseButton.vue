@@ -2,7 +2,7 @@
 import type { RouteLocationRaw } from 'vue-router'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link'
-export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg'
 export type ButtonTone = 'danger' | 'warning' | 'success'
 
 export interface ButtonProps {
@@ -10,6 +10,12 @@ export interface ButtonProps {
   size?: ButtonSize
   /** 撐滿父層寬度 */
   block?: boolean
+  /**
+   * 強制方形版型（min-width = height），padding 縮小。
+   * 用於 icon-only、單字元（如分頁頁碼）等需要等寬等高的場景。
+   * 對應 `docs/component/button.md` 的 `shape="square"`。
+   */
+  square?: boolean
   /** loading 狀態：顯示 spinner 並 disabled */
   loading?: boolean
   disabled?: boolean
@@ -59,16 +65,30 @@ const computedRel = computed(() => {
   return undefined
 })
 
-const sizeClass = computed(() => ({
-  sm: 'text-xs px-3 py-1.5',
-  md: 'text-sm px-4 py-2',
-  lg: 'text-base px-5 py-2.5'
-}[props.size]))
+// square 模式：min-w = h，px 縮小、捨棄 py（高度由 h-X 鎖定），用於 icon-only / 單字元按鈕。
+// 非 square：依文字段落自然撐開，px / py 配對行內排版。
+const sizeClass = computed(() => {
+  if (props.square) {
+    return {
+      xs: 'text-xs min-w-7 h-7 px-1.5',
+      sm: 'text-xs min-w-8 h-8 px-2',
+      md: 'text-sm min-w-10 h-10 px-2',
+      lg: 'text-base min-w-12 h-12 px-3',
+    }[props.size]
+  }
+  return {
+    xs: 'text-xs px-2 py-1',
+    sm: 'text-xs px-3 py-1.5',
+    md: 'text-sm px-4 py-2',
+    lg: 'text-base px-5 py-2.5',
+  }[props.size]
+})
 
 const sizeGapClass = computed(() => ({
+  xs: 'gap-1',
   sm: 'gap-1.5',
   md: 'gap-2',
-  lg: 'gap-2'
+  lg: 'gap-2',
 }[props.size]))
 
 const TONE_BG: Record<ButtonTone, string> = {
