@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { computePageItems, type PageItem } from '~~/app/utils/pagination'
 
 const pages = (items: PageItem[]) =>
-  items.map((i) => (i.type === 'ellipsis' ? '…' : i.page))
+  items.map((i) => (i.type === 'page' ? i.page : '…'))
 
 describe('computePageItems', () => {
   describe('small page counts (no ellipsis)', () => {
@@ -80,21 +80,38 @@ describe('computePageItems', () => {
           expect(typeof item.page).toBe('number')
           expect(item.page).toBeGreaterThanOrEqual(1)
           expect(item.page).toBeLessThanOrEqual(20)
+          expect(typeof item.selected).toBe('boolean')
         } else {
-          expect(item.type).toBe('ellipsis')
+          expect(item.type).toMatch(/^(start|end)-ellipsis$/)
         }
       }
     })
 
+    it('marks exactly one page as selected when current page is visible', () => {
+      const items = computePageItems({ page: 5, count: 20 })
+      const selected = items.filter((i) => i.type === 'page' && i.selected)
+      expect(selected).toHaveLength(1)
+      expect(selected[0]).toMatchObject({ type: 'page', page: 5 })
+    })
+
+    it('places start-ellipsis before end-ellipsis when both appear', () => {
+      const items = computePageItems({ page: 5, count: 10 })
+      const startIdx = items.findIndex((i) => i.type === 'start-ellipsis')
+      const endIdx = items.findIndex((i) => i.type === 'end-ellipsis')
+      expect(startIdx).toBeGreaterThanOrEqual(0)
+      expect(endIdx).toBeGreaterThanOrEqual(0)
+      expect(startIdx).toBeLessThan(endIdx)
+    })
+
     it('never includes duplicate page numbers', () => {
       const items = computePageItems({ page: 5, count: 100 })
-      const numbers = items.filter((i): i is { type: 'page'; page: number } => i.type === 'page').map((i) => i.page)
+      const numbers = items.filter((i): i is { type: 'page'; page: number; selected: boolean } => i.type === 'page').map((i) => i.page)
       expect(new Set(numbers).size).toBe(numbers.length)
     })
 
     it('produces monotonically increasing page numbers', () => {
       const items = computePageItems({ page: 7, count: 30 })
-      const numbers = items.filter((i): i is { type: 'page'; page: number } => i.type === 'page').map((i) => i.page)
+      const numbers = items.filter((i): i is { type: 'page'; page: number; selected: boolean } => i.type === 'page').map((i) => i.page)
       for (let i = 1; i < numbers.length; i++) {
         expect(numbers[i]).toBeGreaterThan(numbers[i - 1]!)
       }

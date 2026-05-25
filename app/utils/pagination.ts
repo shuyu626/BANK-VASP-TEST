@@ -2,7 +2,12 @@
 // 演算法參考 MUI Pagination：boundaryCount 固定頭尾、siblingCount 控制當前頁兩側，
 // 透過 sibling 區段對稱補齊，邊緣頁時按鈕數量仍維持穩定。
 
-export type PageItem = { type: 'page'; page: number } | { type: 'ellipsis' }
+export type PageItem =
+  | { type: 'page'; page: number; selected: boolean }
+  // ellipsis 拆成 start/end 兩種，讓消費端能產生穩定的 v-for key
+  // （同時出現兩個 ellipsis 時，光靠 type 無法區分是哪一邊）
+  | { type: 'start-ellipsis' }
+  | { type: 'end-ellipsis' }
 
 export interface ComputePageItemsParams {
   /** 當前頁碼（1-based） */
@@ -37,24 +42,25 @@ export function computePageItems(params: ComputePageItemsParams): PageItem[] {
   )
 
   const items: PageItem[] = []
+  const pushPage = (p: number) => items.push({ type: 'page', page: p, selected: p === page })
 
-  startPages.forEach((p) => items.push({ type: 'page', page: p }))
+  startPages.forEach(pushPage)
 
   if (siblingsStart > boundaryCount + 2) {
-    items.push({ type: 'ellipsis' })
+    items.push({ type: 'start-ellipsis' })
   } else if (boundaryCount + 1 < count - boundaryCount) {
-    items.push({ type: 'page', page: boundaryCount + 1 })
+    pushPage(boundaryCount + 1)
   }
 
-  range(siblingsStart, siblingsEnd).forEach((p) => items.push({ type: 'page', page: p }))
+  range(siblingsStart, siblingsEnd).forEach(pushPage)
 
   if (siblingsEnd < count - boundaryCount - 1) {
-    items.push({ type: 'ellipsis' })
+    items.push({ type: 'end-ellipsis' })
   } else if (count - boundaryCount > boundaryCount) {
-    items.push({ type: 'page', page: count - boundaryCount })
+    pushPage(count - boundaryCount)
   }
 
-  endPages.forEach((p) => items.push({ type: 'page', page: p }))
+  endPages.forEach(pushPage)
 
   return items
 }

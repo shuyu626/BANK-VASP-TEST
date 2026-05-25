@@ -380,16 +380,16 @@ defineExpose({
     >
       <BasePagination
         :page="page"
-        :page-size="pageSize"
+        :per-page="pageSize"
         :total="total"
-        :page-size-options="pageSizeOptions"
+        :per-page-options="pageSizeOptions"
         :show-total="showTotal"
         :boundary-count="paginationBoundaryCount"
         :sibling-count="paginationSiblingCount"
         :show-first-button="showFirstButton"
         :show-last-button="showLastButton"
         @update:page="(v) => (page = v)"
-        @update:pageSize="(v) => { pageSize = v; page = 1 }"
+        @update:per-page="(v: number) => { pageSize = v; page = 1 }"
       />
     </div>
     <!-- 自訂 footer slot（舊 caller 用 usePagination + BasePagination 自塞）-->

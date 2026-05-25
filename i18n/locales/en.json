@@ -318,7 +318,7 @@
         "last": "Go to last page",
         "goto": "Go to page {page}",
         "current": "Page {page}, current page",
-        "pageSize": "Items per page"
+        "perPage": "Items per page"
       }
     },
     "orderForm": {

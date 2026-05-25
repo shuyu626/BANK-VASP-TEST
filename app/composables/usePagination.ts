@@ -10,13 +10,15 @@ interface UsePaginationOptions<T> {
   pageSizeOptions?: number[]
 }
 
+// BasePagination 對外 API 使用 `perPage` 命名（per docs/component/button.md 風格），
+// 此處 bindings 配合該介面，但 composable 內部仍維持 pageSize 命名以保持向後相容。
 export interface PaginationBindings {
   page: number
-  pageSize: number
+  perPage: number
   total: number
-  pageSizeOptions?: number[]
+  perPageOptions?: number[]
   'onUpdate:page': (n: number) => void
-  'onUpdate:pageSize': (n: number) => void
+  'onUpdate:perPage': (n: number) => void
 }
 
 export function usePagination<T>(opts: UsePaginationOptions<T>) {
@@ -57,11 +59,11 @@ export function usePagination<T>(opts: UsePaginationOptions<T>) {
   // 給 v-bind 用的 bindings 物件，呼叫方一次性 spread 到 <BasePagination v-bind="bindings" />
   const bindings = computed<PaginationBindings>(() => ({
     page: page.value,
-    pageSize: pageSize.value,
+    perPage: pageSize.value,
     total: total.value,
-    pageSizeOptions: opts.pageSizeOptions,
+    perPageOptions: opts.pageSizeOptions,
     'onUpdate:page': setPage,
-    'onUpdate:pageSize': setPageSize
+    'onUpdate:perPage': setPageSize
   }))
 
   return {

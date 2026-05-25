@@ -318,7 +318,7 @@
         "last": "前往最後一頁",
         "goto": "前往第 {page} 頁",
         "current": "第 {page} 頁，目前頁面",
-        "pageSize": "每頁筆數"
+        "perPage": "每頁筆數"
       }
     },
     "orderForm": {
