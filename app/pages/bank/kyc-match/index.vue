@@ -42,57 +42,68 @@ const kycMatchColumns = computed(() => [
   <div class="space-y-6">
     <BasePageHeader :title="$t('bank.kycMatch.title')" :subtitle="$t('bank.kycMatch.subtitle')" />
 
-    <BaseTabBar v-model="filter" :options="tabOptions" />
-
-    <BaseTable
-      :columns="kycMatchColumns"
-      :items="kycMatchItems"
-      :row-key="(row) => row.record.id"
-      paginated
-      :default-page-size="10"
-      :empty-text="$t('bank.kycMatch.empty')"
-      :error-message="errorMessage"
-      panel-class="bank-panel"
-      table-class="bank-table"
-      table-min-width="720px"
-      @retry="refresh()"
+    <BaseTabs
+      v-model="filter"
+      :options="tabOptions"
+      :aria-label="$t('bank.kycMatch.title')"
     >
-      <template #cell-submittedAt="{ row }">
-        <span class="num text-text-muted text-xs">{{ fmtDt(row.record.submittedAt) }}</span>
-      </template>
-      <template #cell-user="{ row }">
-        <div>
-          <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
-          <div class="text-xs text-text-muted">{{ row.user?.email }}</div>
-        </div>
-      </template>
-      <template #cell-idNumber="{ row }">
-        <span class="font-mono num text-xs">{{ row.record.idNumber }}</span>
-      </template>
-      <template #cell-bankAccounts="{ row }">
-        <div class="text-xs">
-          <div v-if="row.bankAccounts.length > 0">
-            <div v-for="b in row.bankAccounts" :key="b.id">
-              {{ b.bankCode }} {{ b.bankName }}
-              <BaseBadge :variant="b.isVerified ? 'success' : 'warning'" class="ml-1">
-                {{ b.isVerified ? $t('bank.kycMatch.verifiedYes') : $t('bank.kycMatch.verifiedNo') }}
-              </BaseBadge>
+      <BaseTabPanel
+        v-for="opt in tabOptions"
+        :key="String(opt.value)"
+        :value="opt.value"
+        :keep-alive="false"
+      >
+        <BaseTable
+          :columns="kycMatchColumns"
+          :items="kycMatchItems"
+          :row-key="(row) => row.record.id"
+          paginated
+          :default-page-size="10"
+          :empty-text="$t('bank.kycMatch.empty')"
+          :error-message="errorMessage"
+          panel-class="bank-panel"
+          table-class="bank-table"
+          table-min-width="720px"
+          @retry="refresh()"
+        >
+          <template #cell-submittedAt="{ row }">
+            <span class="num text-text-muted text-xs">{{ fmtDt(row.record.submittedAt) }}</span>
+          </template>
+          <template #cell-user="{ row }">
+            <div>
+              <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
+              <div class="text-xs text-text-muted">{{ row.user?.email }}</div>
             </div>
-          </div>
-          <span v-else class="text-text-muted">{{ $t('bank.kycMatch.noBankAccount') }}</span>
-        </div>
-      </template>
-      <template #cell-kycStatus="{ row }">
-        <BaseBadge :variant="kycVariant(row.record.status)">{{ row.record.status }}</BaseBadge>
-      </template>
-      <template #cell-bankMatch="{ row }">
-        <BaseBadge :variant="row.record.bankVerifiedAt ? 'success' : 'warning'">
-          {{ row.record.bankVerifiedAt ? $t('bank.kycMatch.matched') : $t('bank.kycMatch.matchPending') }}
-        </BaseBadge>
-      </template>
-      <template #cell-action="{ row }">
-        <NuxtLink :to="`/bank/kyc-match/${row.record.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
-      </template>
-    </BaseTable>
+          </template>
+          <template #cell-idNumber="{ row }">
+            <span class="font-mono num text-xs">{{ row.record.idNumber }}</span>
+          </template>
+          <template #cell-bankAccounts="{ row }">
+            <div class="text-xs">
+              <div v-if="row.bankAccounts.length > 0">
+                <div v-for="b in row.bankAccounts" :key="b.id">
+                  {{ b.bankCode }} {{ b.bankName }}
+                  <BaseBadge :variant="b.isVerified ? 'success' : 'warning'" class="ml-1">
+                    {{ b.isVerified ? $t('bank.kycMatch.verifiedYes') : $t('bank.kycMatch.verifiedNo') }}
+                  </BaseBadge>
+                </div>
+              </div>
+              <span v-else class="text-text-muted">{{ $t('bank.kycMatch.noBankAccount') }}</span>
+            </div>
+          </template>
+          <template #cell-kycStatus="{ row }">
+            <BaseBadge :variant="kycVariant(row.record.status)">{{ row.record.status }}</BaseBadge>
+          </template>
+          <template #cell-bankMatch="{ row }">
+            <BaseBadge :variant="row.record.bankVerifiedAt ? 'success' : 'warning'">
+              {{ row.record.bankVerifiedAt ? $t('bank.kycMatch.matched') : $t('bank.kycMatch.matchPending') }}
+            </BaseBadge>
+          </template>
+          <template #cell-action="{ row }">
+            <NuxtLink :to="`/bank/kyc-match/${row.record.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
+          </template>
+        </BaseTable>
+      </BaseTabPanel>
+    </BaseTabs>
   </div>
 </template>

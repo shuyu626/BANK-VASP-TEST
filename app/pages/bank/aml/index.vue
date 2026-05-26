@@ -46,61 +46,73 @@ const amlColumns = computed(() => [
   <div class="space-y-6">
     <BasePageHeader :title="$t('bank.aml.title')" :subtitle="$t('bank.aml.subtitle')" />
 
-    <div class="flex items-center gap-3">
-      <BaseTabBar v-model="statusFilter" :options="tabOptions" />
-      <div class="w-44">
-        <BaseSelect
-          v-model="severity"
-          :options="[
-            { value: '', label: $t('bank.aml.filterSeverity') },
-            { value: 'low', label: $t('riskLevel.low') },
-            { value: 'medium', label: $t('riskLevel.medium') },
-            { value: 'high', label: $t('riskLevel.high') },
-            { value: 'critical', label: $t('riskLevel.critical') }
-          ]"
-        />
-      </div>
-    </div>
-
-    <BaseTable
-      :columns="amlColumns"
-      :items="amlItems"
-      :row-key="(row) => row.alert.id"
-      paginated
-      :default-page-size="10"
-      :empty-text="$t('bank.aml.empty')"
-      :error-message="errorMessage"
-      panel-class="bank-panel"
-      table-class="bank-table"
-      table-min-width="720px"
-      @retry="refresh()"
+    <BaseTabs
+      v-model="statusFilter"
+      :options="tabOptions"
+      :aria-label="$t('bank.aml.title')"
     >
-      <template #cell-createdAt="{ row }">
-        <span class="num text-text-muted text-xs whitespace-nowrap">{{ fmtDt(row.alert.createdAt) }}</span>
-      </template>
-      <template #cell-severity="{ row }">
-        <BaseBadge :variant="riskVariant(row.alert.severity)">{{ row.alert.severity }}</BaseBadge>
-      </template>
-      <template #cell-type="{ row }">
-        <span class="text-xs">{{ row.alert.type }}</span>
-      </template>
-      <template #cell-user="{ row }">
-        <div>
-          <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
-          <div class="text-xs text-text-muted font-mono">{{ row.alert.userId }}</div>
+      <template #trailing>
+        <div class="w-44">
+          <BaseSelect
+            v-model="severity"
+            :options="[
+              { value: '', label: $t('bank.aml.filterSeverity') },
+              { value: 'low', label: $t('riskLevel.low') },
+              { value: 'medium', label: $t('riskLevel.medium') },
+              { value: 'high', label: $t('riskLevel.high') },
+              { value: 'critical', label: $t('riskLevel.critical') }
+            ]"
+          />
         </div>
       </template>
-      <template #cell-amount="{ row }">{{ fmtTwd(row.alert.amount) }}</template>
-      <template #cell-description="{ row }">
-        <span class="text-xs max-w-xs">{{ row.alert.description }}</span>
-      </template>
-      <template #cell-status="{ row }">
-        <span v-if="row.alert.resolvedAt" class="text-xs text-success">{{ row.alert.resolution }}</span>
-        <span v-else class="text-xs text-warning font-semibold">{{ $t('bank.aml.open') }}</span>
-      </template>
-      <template #cell-action="{ row }">
-        <NuxtLink :to="`/bank/aml/${row.alert.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
-      </template>
-    </BaseTable>
+
+      <BaseTabPanel
+        v-for="opt in tabOptions"
+        :key="String(opt.value)"
+        :value="opt.value"
+        :keep-alive="false"
+      >
+        <BaseTable
+          :columns="amlColumns"
+          :items="amlItems"
+          :row-key="(row) => row.alert.id"
+          paginated
+          :default-page-size="10"
+          :empty-text="$t('bank.aml.empty')"
+          :error-message="errorMessage"
+          panel-class="bank-panel"
+          table-class="bank-table"
+          table-min-width="720px"
+          @retry="refresh()"
+        >
+          <template #cell-createdAt="{ row }">
+            <span class="num text-text-muted text-xs whitespace-nowrap">{{ fmtDt(row.alert.createdAt) }}</span>
+          </template>
+          <template #cell-severity="{ row }">
+            <BaseBadge :variant="riskVariant(row.alert.severity)">{{ row.alert.severity }}</BaseBadge>
+          </template>
+          <template #cell-type="{ row }">
+            <span class="text-xs">{{ row.alert.type }}</span>
+          </template>
+          <template #cell-user="{ row }">
+            <div>
+              <div class="font-medium">{{ row.user?.displayName ?? '—' }}</div>
+              <div class="text-xs text-text-muted font-mono">{{ row.alert.userId }}</div>
+            </div>
+          </template>
+          <template #cell-amount="{ row }">{{ fmtTwd(row.alert.amount) }}</template>
+          <template #cell-description="{ row }">
+            <span class="text-xs max-w-xs">{{ row.alert.description }}</span>
+          </template>
+          <template #cell-status="{ row }">
+            <span v-if="row.alert.resolvedAt" class="text-xs text-success">{{ row.alert.resolution }}</span>
+            <span v-else class="text-xs text-warning font-semibold">{{ $t('bank.aml.open') }}</span>
+          </template>
+          <template #cell-action="{ row }">
+            <NuxtLink :to="`/bank/aml/${row.alert.id}`" class="text-xs hover:underline">{{ $t('common.action.viewDetail') }}</NuxtLink>
+          </template>
+        </BaseTable>
+      </BaseTabPanel>
+    </BaseTabs>
   </div>
 </template>

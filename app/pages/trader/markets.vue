@@ -86,65 +86,77 @@ const { paged: pagedMarkets, bindings: marketBindings } = usePagination({
       </template>
     </BasePageHeader>
 
-    <BaseTabBar v-model="tab" :options="tabOptions" rounded="md" />
-
-    <BaseTable
-      :colspan="6"
-      :empty="filtered.length === 0"
-      :empty-text="emptyText"
-      panel-class="trader-panel overflow-hidden"
-      numeric
+    <BaseTabs
+      v-model="tab"
+      :options="tabOptions"
+      rounded="md"
+      :aria-label="$t('trader.markets.title')"
     >
-      <template #head>
-        <tr class="text-xs text-text-muted border-b border-border">
-          <th class="text-left px-4 py-3 font-medium w-8" />
-          <th class="text-left px-4 py-3 font-medium">{{ $t('trader.markets.th.pair') }}</th>
-          <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('price')">
-            {{ $t('trader.markets.th.lastPrice') }} {{ sortIcon('price') }}
-          </th>
-          <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('change24h')">
-            {{ $t('trader.markets.th.change24h') }} {{ sortIcon('change24h') }}
-          </th>
-          <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('volume24h')">
-            {{ $t('trader.markets.th.vol24h') }} {{ sortIcon('volume24h') }}
-          </th>
-          <th class="text-right px-4 py-3 font-medium">{{ $t('trader.markets.th.highLow') }}</th>
-        </tr>
-      </template>
-      <tr
-        v-for="m in pagedMarkets"
-        :key="m.symbol"
-        class="border-b border-border last:border-0 hover:bg-surface-alt cursor-pointer"
-        @click="goTrade(m.symbol)"
+      <BaseTabPanel
+        v-for="opt in tabOptions"
+        :key="String(opt.value)"
+        :value="opt.value"
+        :keep-alive="false"
       >
-        <td class="px-4 py-3" @click.stop>
-          <button type="button" class="text-text-muted hover:text-gold-400" @click="toggle(m.symbol)">
-            {{ isFavorite(m.symbol) ? '★' : '☆' }}
-          </button>
-        </td>
-        <td class="px-4 py-3">
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
-              {{ m.icon }}
-            </span>
-            <div>
-              <div class="font-medium">{{ m.symbol }}</div>
-              <div class="text-xs text-text-muted">{{ m.name }}</div>
-            </div>
-          </div>
-        </td>
-        <td class="text-right px-4 py-3">{{ fmtPriceAdaptive(m.price) }}</td>
-        <td class="text-right px-4 py-3 font-medium" :class="m.change24h >= 0 ? 'up' : 'down'">
-          {{ m.change24h >= 0 ? '+' : '' }}{{ m.change24h.toFixed(2) }}%
-        </td>
-        <td class="text-right px-4 py-3 text-text-muted">{{ fmtVolume(m.volume24h) }}</td>
-        <td class="text-right px-4 py-3 text-text-muted text-xs">
-          {{ fmtPriceAdaptive(m.high24h) }} / {{ fmtPriceAdaptive(m.low24h) }}
-        </td>
-      </tr>
-      <template #footer>
-        <BasePagination v-bind="marketBindings" show-first-button show-last-button />
-      </template>
-    </BaseTable>
+        <BaseTable
+          :colspan="6"
+          :empty="filtered.length === 0"
+          :empty-text="emptyText"
+          panel-class="trader-panel overflow-hidden"
+          numeric
+        >
+          <template #head>
+            <tr class="text-xs text-text-muted border-b border-border">
+              <th class="text-left px-4 py-3 font-medium w-8" />
+              <th class="text-left px-4 py-3 font-medium">{{ $t('trader.markets.th.pair') }}</th>
+              <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('price')">
+                {{ $t('trader.markets.th.lastPrice') }} {{ sortIcon('price') }}
+              </th>
+              <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('change24h')">
+                {{ $t('trader.markets.th.change24h') }} {{ sortIcon('change24h') }}
+              </th>
+              <th class="text-right px-4 py-3 font-medium cursor-pointer hover:text-text" @click="setSort('volume24h')">
+                {{ $t('trader.markets.th.vol24h') }} {{ sortIcon('volume24h') }}
+              </th>
+              <th class="text-right px-4 py-3 font-medium">{{ $t('trader.markets.th.highLow') }}</th>
+            </tr>
+          </template>
+          <tr
+            v-for="m in pagedMarkets"
+            :key="m.symbol"
+            class="border-b border-border last:border-0 hover:bg-surface-alt cursor-pointer"
+            @click="goTrade(m.symbol)"
+          >
+            <td class="px-4 py-3" @click.stop>
+              <button type="button" class="text-text-muted hover:text-gold-400" @click="toggle(m.symbol)">
+                {{ isFavorite(m.symbol) ? '★' : '☆' }}
+              </button>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-alt text-primary-400 font-bold">
+                  {{ m.icon }}
+                </span>
+                <div>
+                  <div class="font-medium">{{ m.symbol }}</div>
+                  <div class="text-xs text-text-muted">{{ m.name }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-right px-4 py-3">{{ fmtPriceAdaptive(m.price) }}</td>
+            <td class="text-right px-4 py-3 font-medium" :class="m.change24h >= 0 ? 'up' : 'down'">
+              {{ m.change24h >= 0 ? '+' : '' }}{{ m.change24h.toFixed(2) }}%
+            </td>
+            <td class="text-right px-4 py-3 text-text-muted">{{ fmtVolume(m.volume24h) }}</td>
+            <td class="text-right px-4 py-3 text-text-muted text-xs">
+              {{ fmtPriceAdaptive(m.high24h) }} / {{ fmtPriceAdaptive(m.low24h) }}
+            </td>
+          </tr>
+          <template #footer>
+            <BasePagination v-bind="marketBindings" show-first-button show-last-button />
+          </template>
+        </BaseTable>
+      </BaseTabPanel>
+    </BaseTabs>
   </div>
 </template>
