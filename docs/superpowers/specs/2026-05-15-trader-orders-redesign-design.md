@@ -61,7 +61,7 @@
    - 今日成交（筆數）
    - 近 30 日手續費（NT$）
 3. **Tab + 工具列**（同一列，桌機）：
-   - 左：`BaseTabBar` — `開倉中` / `歷史委託` / `成交紀錄`（第 3 個切換時 `router.push('/trader/orders/trades')`）
+   - 左：`BaseTabs` — `開倉中` / `歷史委託` / `成交紀錄`（第 3 個切換時 `router.push('/trader/orders/trades')`）
    - 右：幣對 `BaseSelect` ＋「全部取消」`BaseButton`（僅開倉中 tab、有可取消單時顯示）＋「刷新」`BaseButton`（ghost）
 4. **資料區**：
    - `md` 以上：`BaseTable`（declarative columns + `#cell-*` slot + 內建分頁）
