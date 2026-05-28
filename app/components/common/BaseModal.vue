@@ -1,6 +1,7 @@
 <script setup lang="ts">
+const model = defineModel<boolean>({ required: true })
+
 const props = withDefaults(defineProps<{
-  modelValue: boolean
   title?: string
   /** max-w 寬度 token */
   width?: 'sm' | 'md' | 'lg'
@@ -11,16 +12,27 @@ const props = withDefaults(defineProps<{
   closeOnBackdrop: true
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-}>()
+const { register, unregister, isTop } = usePopupStack()
+const popupId = ref<number | null>(null)
 
 function close() {
-  emit('update:modelValue', false)
+  model.value = false
 }
 
-function onBackdrop() {
-  if (props.closeOnBackdrop) close()
+// 背景關閉：mousedown 與 mouseup 必須「都」落在背景才算數，
+// 否則在 dialog 內拖選文字、放開時滑到背景，會被當成關閉。
+let backdropMousedown = false
+function onBackdropMousedown(e: MouseEvent) {
+  backdropMousedown = e.target === e.currentTarget
+}
+function onBackdropMouseup(e: MouseEvent) {
+  const wasOnBackdrop = backdropMousedown
+  backdropMousedown = false
+  if (!wasOnBackdrop) return
+  if (e.target !== e.currentTarget) return
+  if (!props.closeOnBackdrop) return
+  if (popupId.value === null || !isTop(popupId.value)) return
+  close()
 }
 
 const widthClass = computed(() => ({
@@ -29,7 +41,8 @@ const widthClass = computed(() => ({
   lg: 'max-w-lg'
 }[props.width]))
 
-// ─── A11y：focus trap、initial focus、restore focus、Escape、scroll lock ───
+// ─── A11y：focus trap、初始 focus、關閉後 restore focus、Escape 關閉 ───
+// scroll lock 已交由 usePopupStack 統一處理，這裡不再手動操作 body.style。
 
 const dialogRef = ref<HTMLElement | null>(null)
 let previouslyFocused: HTMLElement | null = null
@@ -54,12 +67,14 @@ function focusInitial() {
   if (!import.meta.client || !dialogRef.value) return
   const focusables = getFocusable()
   const target = focusables[0] ?? dialogRef.value
-  // 用 setTimeout 等 DOM 完成 transition / Teleport 掛載
+  // 延後一個 tick，等 Teleport 掛載與 CSS transition 完成才 focus，否則 focus 會丟失。
   setTimeout(() => target.focus({ preventScroll: true }), 0)
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (!props.modelValue) return
+  if (!model.value) return
+  // 多層彈窗時只有最上層處理 Escape，否則 confirm 疊在 modal 上時兩層會一起關。
+  if (popupId.value === null || !isTop(popupId.value)) return
   if (e.key === 'Escape') {
     e.stopPropagation()
     close()
@@ -88,14 +103,17 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-watch(() => props.modelValue, (open) => {
+watch(model, (open) => {
   if (!import.meta.client) return
   if (open) {
     previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    document.body.style.overflow = 'hidden'
+    popupId.value = register()
     nextTick(() => focusInitial())
   } else {
-    document.body.style.overflow = ''
+    if (popupId.value !== null) {
+      unregister(popupId.value)
+      popupId.value = null
+    }
     previouslyFocused?.focus({ preventScroll: true })
     previouslyFocused = null
   }
@@ -108,16 +126,21 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (!import.meta.client) return
   window.removeEventListener('keydown', onKeydown)
-  document.body.style.overflow = ''
+  // 元件在開啟狀態被卸載（例如路由切換）時也要釋放 stack，否則 body 會卡在鎖定狀態。
+  if (popupId.value !== null) {
+    unregister(popupId.value)
+    popupId.value = null
+  }
 })
 </script>
 
 <template>
   <Teleport to="body">
     <div
-      v-if="modelValue"
+      v-if="model"
       class="fixed inset-0 bg-black/60 flex items-center justify-center z-30 px-4"
-      @click.self="onBackdrop"
+      @mousedown="onBackdropMousedown"
+      @mouseup="onBackdropMouseup"
     >
       <div
         ref="dialogRef"
