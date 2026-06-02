@@ -25,14 +25,16 @@ function fmtTime(iso: string) {
       <span class="text-right">{{ $t('components.recentTrades.price') }}</span>
       <span class="text-right">{{ $t('components.recentTrades.qty') }}</span>
     </div>
-    <ul class="divide-y divide-border num text-xs max-h-96 overflow-y-auto">
-      <li v-for="t in trades" :key="t.id" class="grid grid-cols-3 px-4 py-1">
-        <span class="text-text-muted">{{ fmtTime(t.timestamp) }}</span>
-        <span class="text-right" :class="t.side === 'buy' ? 'text-market-up' : 'text-market-down'">
-          {{ fmtPrice(t.price) }}
-        </span>
-        <span class="text-right">{{ fmtQty(t.quantity) }}</span>
-      </li>
-    </ul>
+    <BaseScrollbar class="max-h-96">
+      <ul class="divide-y divide-border num text-xs">
+        <li v-for="t in trades" :key="t.id" class="grid grid-cols-3 px-4 py-1">
+          <span class="text-text-muted">{{ fmtTime(t.timestamp) }}</span>
+          <span class="text-right" :class="t.side === 'buy' ? 'text-market-up' : 'text-market-down'">
+            {{ fmtPrice(t.price) }}
+          </span>
+          <span class="text-right">{{ fmtQty(t.quantity) }}</span>
+        </li>
+      </ul>
+    </BaseScrollbar>
   </div>
 </template>
