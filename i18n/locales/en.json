@@ -369,7 +369,30 @@
       "trade": "Trade",
       "wallet": "Wallet",
       "orders": "Orders",
-      "bankAccounts": "Bank Accounts"
+      "bankAccounts": "Bank Accounts",
+      "faq": "FAQ"
+    },
+    "faq": {
+      "headTitle": "FAQ - DongDong VASP",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Common questions about KYC, TWD deposits and withdrawals, trust custody, and fees.",
+      "hint": "Click a question to expand the answer.",
+      "q": {
+        "kyc": "How long does KYC take, and what documents do I need?",
+        "depositTime": "How soon will my TWD deposit arrive?",
+        "withdrawLimit": "How is my withdrawal limit calculated?",
+        "trust": "Who holds my funds, and what happens if the platform fails?",
+        "fees": "How are trading and transfer fees charged?",
+        "apiKey": "What should I do if my API key is lost or leaked?"
+      },
+      "a": {
+        "kyc": "Review usually completes within 1-2 business days. Prepare both sides of your ID, a secondary document, and a selfie. You can track the status on the Identity Verification page.",
+        "depositTime": "After transferring to your dedicated virtual account, funds usually arrive within minutes. Inter-bank transfers may be delayed by bank processing hours.",
+        "withdrawLimit": "Limits depend on your current KYC tier - higher tiers unlock higher daily and monthly withdrawal limits. Complete higher-level verification to raise them.",
+        "trust": "All TWD funds are held in a trust account at our partner bank, segregated from the platform's own assets. Customer funds in the trust account remain independently protected even if the platform fails.",
+        "fees": "Spot trades charge maker/taker fees on the filled amount. TWD deposits are free; withdrawals incur the bank's wire fee. Crypto withdrawals also incur a network fee.",
+        "apiKey": "Immediately disable or delete the key under Settings - API Keys and create a new one. Never store the secret in frontend code or public repositories."
+      }
     },
     "menu": {
       "wallet": "My Wallet",

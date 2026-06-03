@@ -30,7 +30,8 @@ const nav = computed(() => [
   { label: t('trader.nav.markets'), to: '/trader/markets' },
   { label: t('trader.nav.trade'), to: `/trader/trade/${prefs.value.defaultPair}` },
   { label: t('trader.nav.wallet'), to: '/trader/wallet' },
-  { label: t('trader.nav.orders'), to: '/trader/orders' }
+  { label: t('trader.nav.orders'), to: '/trader/orders' },
+  { label: t('trader.nav.faq'), to: '/trader/faq' }
 ])
 
 async function onLogout() {
