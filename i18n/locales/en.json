@@ -1166,6 +1166,7 @@
         "kyc": "KYC"
       },
       "empty": "No matching users",
+      "totalCount": "{count} users on this page",
       "detail": {
         "back": "← Back to user list",
         "freeze": "Freeze account",

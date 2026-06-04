@@ -30,11 +30,26 @@ const { paged, bindings } = usePagination<User>({
   defaultPageSize: 10,
   pageSizeOptions: [5, 10, 20, 50]
 })
+
+// 取顯示名稱的首字作為頭像縮寫（中文取第一字、英文取首字母）
+function initials(name: string): string {
+  return name.trim().charAt(0).toUpperCase() || '?'
+}
 </script>
 
 <template>
   <div class="space-y-4">
     <BasePageHeader :title="$t('admin.users.title')" />
+
+    <!-- 本頁用戶的視覺摘要：疊圖頭像 + 人數，超過 5 位收合成 +N -->
+    <div v-if="paged.length" class="flex items-center gap-3">
+      <BaseAvatarGroup :max="5" size="small">
+        <BaseAvatar v-for="u in paged" :key="u.id" :alt="u.displayName">
+          {{ initials(u.displayName) }}
+        </BaseAvatar>
+      </BaseAvatarGroup>
+      <span class="text-sm text-text-muted">{{ $t('admin.users.totalCount', { count: paged.length }) }}</span>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
       <BaseInput v-model="search" :placeholder="$t('admin.users.search')" />
@@ -89,8 +104,13 @@ const { paged, bindings } = usePagination<User>({
       </template>
       <tr v-for="u in paged" :key="u.id" class="border-b border-border last:border-0 hover:bg-surface-alt">
         <td class="px-4 py-3">
-          <div class="font-medium">{{ u.displayName }}</div>
-          <div class="text-xs text-text-muted">{{ u.email }}</div>
+          <div class="flex items-center gap-3">
+            <BaseAvatar size="small" :alt="u.displayName">{{ initials(u.displayName) }}</BaseAvatar>
+            <div>
+              <div class="font-medium">{{ u.displayName }}</div>
+              <div class="text-xs text-text-muted">{{ u.email }}</div>
+            </div>
+          </div>
         </td>
         <td class="px-4 py-3">
           <BaseBadge :variant="kycVariant(u.kycStatus)">{{ u.kycStatus }}</BaseBadge>

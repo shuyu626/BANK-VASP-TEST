@@ -1166,6 +1166,7 @@
         "kyc": "KYC"
       },
       "empty": "無符合的用戶",
+      "totalCount": "本頁共 {count} 位用戶",
       "detail": {
         "back": "← 回用戶列表",
         "freeze": "凍結帳戶",
